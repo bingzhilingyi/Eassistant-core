@@ -70,5 +70,5 @@ public interface QaTreeRepository extends JpaRepository<QaTree,Integer>{
 	 * @param pageable
 	 * @return
 	 */
-	public Page<QaTree> findAllByOrderByRank(Pageable pageable);
+	public Page<QaTree> findAllByOrderByRankDesc(Pageable pageable);
 }

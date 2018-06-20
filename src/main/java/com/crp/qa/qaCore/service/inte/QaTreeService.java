@@ -123,4 +123,11 @@ public interface QaTreeService extends BaseService<QaTree>{
 	 * @throws QaTreeException
 	 */
 	public QaPagedDto<QaTreeSimpleDto> findTopRank(Integer size) throws QaTreeException;
+	
+	/**
+	 * 记录用户查询情况
+	 * @param title
+	 * @throws QaTreeException
+	 */
+	public void searchRecord(String title)throws QaTreeException;
 }

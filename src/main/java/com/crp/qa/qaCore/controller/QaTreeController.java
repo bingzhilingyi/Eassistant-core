@@ -7,6 +7,7 @@ package com.crp.qa.qaCore.controller;
 import java.util.List;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.http.HttpEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -217,9 +218,14 @@ public class QaTreeController extends BaseController{
 	 * @return
 	 */
 	@GetMapping(path="/findChildrenByTitle")
-	public QaBaseTransfer findChildrenByTitle(@RequestParam(value="title") String title) {
+	public QaBaseTransfer findChildrenByTitle(
+			@RequestParam(value="title") String title) {
+		//String isNeedRecord = req.getParameter("isNeedRecord");
+		//判断是否需要记录此次请求，需要就会去记录
+		//isNeedRecord(isNeedRecord,title);
 		QaBaseTransfer dto = new QaBaseTransfer("success","查询成功！");
 		try {
+			//进行查询
 			QaTreeDto d =qaTreeService.findChildrenByTitle(title);
 			dto.setContent(d);
 		}catch (QaTreeException e) {
@@ -248,4 +254,41 @@ public class QaTreeController extends BaseController{
 		}
 		return dto;
 	}
+	
+	/**
+	 * 记录传入的查询条件
+	 * @param title
+	 * @return
+	 * @Date 2018年6月15日
+	 * @author huangyue
+	 */
+	@PostMapping(path="/searchRecord")
+	public QaBaseTransfer searchRecord(@RequestParam(value="title") String title) {
+		QaBaseTransfer dto = new QaBaseTransfer("success","记录成功！");
+		try {
+			qaTreeService.searchRecord(title);
+		}catch (QaTreeException e) {
+			returnError(e,dto);
+		}
+		return dto;
+	}
+	
+	/**
+	 * 判断是否需要记录，如果需要就进行记录
+	 * @param isNeedRecord
+	 * @return
+	 * @Date 2018年6月15日
+	 * @author huangyue
+	 */
+//	private void isNeedRecord(String needRecord,String title) {
+//		Boolean isNeedRecord = needRecord==null?false:(needRecord.equals("true")?true:false);
+//		if(isNeedRecord) {
+//			try {
+//				qaTreeService.searchRecord(title);
+//			} catch (QaTreeException e) {
+//				//由于记录查询历史不需要返回，所以如果报错只写日志就行
+//				LOGGER.error(e.getMessage(),e);
+//			}
+//		}
+//	}
 }

@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import com.crp.qa.qaCore.domain.domain.QaTree;
@@ -171,6 +172,10 @@ public class QaTreeServiceImpl extends BaseServiceImpl<QaTree> implements QaTree
 			//设置日期
 			t.setCreationDate(new Date());
 			t.setLastUpdateDate(new Date());
+			//热度默认为0
+			if(t.getRank()==null) {
+				t.setRank(0);
+			}
 			//save
 			t = qaTreeRepository.save(t);
 			mapper.map(t, d);
@@ -199,6 +204,10 @@ public class QaTreeServiceImpl extends BaseServiceImpl<QaTree> implements QaTree
 			mapper.map(d, t);
 			//设置日期
 			t.setLastUpdateDate(new Date());
+			//热度默认为0
+			if(t.getRank()==null) {
+				t.setRank(0);
+			}
 			//save
 			t = qaTreeRepository.save(t);
 			mapper.map(t, d);
@@ -267,7 +276,7 @@ public class QaTreeServiceImpl extends BaseServiceImpl<QaTree> implements QaTree
 		//设置分页信息，永远查第一页
 		Pageable pageable = PageRequest.of(0,size);
 		//查询数据
-		Page<QaTree> pagedTree = qaTreeRepository.findAllByOrderByRank(pageable);
+		Page<QaTree> pagedTree = qaTreeRepository.findAllByOrderByRankDesc(pageable);
 		try {
 			List<QaTreeSimpleDto> dList = pojoToDto(QaTreeSimpleDto.class,pagedTree.getContent());
 			//返回信息
@@ -279,5 +288,22 @@ public class QaTreeServiceImpl extends BaseServiceImpl<QaTree> implements QaTree
 		} catch (IllegalAccessException | InstantiationException e) {
 			throw new QaTreeException("pojo转dto失败",e);
 		}	
+	}
+
+	@Override
+	@Async
+	public void searchRecord(String title) throws QaTreeException {
+		//判断标题是否为空
+		if(title==null||title.length()==0) {
+			throw new QaTreeException("传入标题为空！");
+		}
+		//去层级树里查该关键字，如果存在就给rank+1
+		QaTreeDto dto = this.findByTitle(title);
+		if(dto!=null) {
+			Integer nowCount = dto.getRank()==null?0:dto.getRank();
+			dto.setRank(nowCount+1);
+			this.update(dto);
+		}
+		//如果层级树里没有该关键字，就查记录表，如果有，给记录表+1，没有，则往记录表里加一条记录		
 	}
 }

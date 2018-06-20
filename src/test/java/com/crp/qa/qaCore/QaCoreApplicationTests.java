@@ -9,6 +9,7 @@ import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import com.crp.qa.qaCore.domain.domain.QaTree;
 import com.crp.qa.qaCore.domain.dto.QaTreeDto;
 import com.crp.qa.qaCore.domain.dto.QaTreeSimpleDto;
 import com.crp.qa.qaCore.service.inte.QaPageService;
@@ -34,8 +35,7 @@ public class QaCoreApplicationTests {
 	@Test
 	public void test() {
 		try {
-			QaPagedDto<QaTreeSimpleDto> dto = qaTreeService.findTopRank(100);
-			System.out.println(dto.getTotalElements());
+			QaTreeDto dto = qaTreeService.findByTitle("123123");
 		} catch (QaTreeException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

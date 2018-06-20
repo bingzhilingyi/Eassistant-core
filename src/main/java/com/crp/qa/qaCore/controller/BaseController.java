@@ -19,7 +19,7 @@ import com.crp.qa.qaCore.util.transfer.QaBaseTransfer;
 @Component
 public class BaseController {
 	
-	private final Logger LOGGER = LoggerFactory.getLogger(QaTreeController.class);
+	final Logger LOGGER = LoggerFactory.getLogger(QaTreeController.class);
 
 	/**
 	 * 返回错误信息并打印日志的通用方法
