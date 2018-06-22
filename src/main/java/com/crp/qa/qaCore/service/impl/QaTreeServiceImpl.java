@@ -109,6 +109,9 @@ public class QaTreeServiceImpl extends BaseServiceImpl<QaTree> implements QaTree
 			return this.findPagedAll(page, size);
 		}
 		
+		//把title里的空格换成%
+		title = title.replaceAll("\\s+", "%");
+		
 		//初始化参数
 		page = page==null?1:page;
 		size = size==null?20:size;
