@@ -202,6 +202,7 @@ public class QaTreeServiceImpl extends BaseServiceImpl<QaTree> implements QaTree
 		}else if(!qaTreeRepository.existsById(d.getTreeId())) {
 			throw new QaTreeException("传入对象在数据库中不存在，更新失败！");
 		}
+		
 		try {
 			QaTree t = new QaTree();
 			mapper.map(d, t);
@@ -210,6 +211,13 @@ public class QaTreeServiceImpl extends BaseServiceImpl<QaTree> implements QaTree
 			//热度默认为0
 			if(t.getRank()==null) {
 				t.setRank(0);
+			}
+			//如果域为空，且不是根节点，则继承他上级的域
+			if(t.getDomain()==null && t.getParentId()!=null && t.getParentId()!=0) {
+				Optional<QaTree> parent = qaTreeRepository.findById(t.getParentId());
+				if(parent.isPresent()) {
+					t.setDomain(parent.get().getDomain());
+				}
 			}
 			//save
 			t = qaTreeRepository.save(t);

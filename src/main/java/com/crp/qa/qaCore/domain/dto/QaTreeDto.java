@@ -24,6 +24,7 @@ public class QaTreeDto implements Serializable{
 	private String isPage;
 	private Integer parentId;
 	private Integer rank;
+	private String domain;
 	private Integer createdBy;
 	private Date creationDate;
 	private Integer lastUpdatedBy;
@@ -166,6 +167,12 @@ public class QaTreeDto implements Serializable{
 	}
 	public void setRank(Integer rank) {
 		this.rank = rank;
+	}
+	public String getDomain() {
+		return domain;
+	}
+	public void setDomain(String domain) {
+		this.domain = domain;
 	}
 	
 	
