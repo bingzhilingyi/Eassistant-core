@@ -27,7 +27,9 @@ import com.crp.qa.qaCore.domain.dto.QaTreeDto;
 import com.crp.qa.qaCore.domain.dto.QaTreeSimpleDto;
 import com.crp.qa.qaCore.repository.QaTreeRepository;
 import com.crp.qa.qaCore.service.inte.QaPageService;
+import com.crp.qa.qaCore.service.inte.QaSearchHistoryService;
 import com.crp.qa.qaCore.service.inte.QaTreeService;
+import com.crp.qa.qaCore.util.exception.QaSearchHistoryException;
 import com.crp.qa.qaCore.util.exception.QaTreeException;
 import com.crp.qa.qaCore.util.transfer.QaPagedDto;
 
@@ -39,11 +41,13 @@ import com.crp.qa.qaCore.util.transfer.QaPagedDto;
 @Service(value="qaTreeService")
 @Transactional
 public class QaTreeServiceImpl extends BaseServiceImpl<QaTree> implements QaTreeService{
-	
+    
 	@Autowired
 	public QaTreeRepository qaTreeRepository;
 	@Resource(name="qaPageService")
 	public QaPageService qaPageService;
+	@Resource(name="qaSearchHistoryService")
+	private QaSearchHistoryService qaSearchHistoryService;
 
 	/* (non-Javadoc)
 	 * @see com.crp.qa.qaCore.service.inte.QaTreeService#findRoot()
@@ -118,10 +122,10 @@ public class QaTreeServiceImpl extends BaseServiceImpl<QaTree> implements QaTree
 		
 		//定义查询结果
 		List<QaTree> tList = new ArrayList<QaTree>();
-		
+ 				
 		//设置分页信息
 		Pageable pageable = PageRequest.of(page,size);
-		
+        
 		//查询数据
 		Page<QaTree> treePage = qaTreeRepository.findByTitleContaining(title, pageable);
 		tList = treePage.getContent();
@@ -314,7 +318,14 @@ public class QaTreeServiceImpl extends BaseServiceImpl<QaTree> implements QaTree
 			Integer nowCount = dto.getRank()==null?0:dto.getRank();
 			dto.setRank(nowCount+1);
 			this.update(dto);
+		}else {
+			//如果层级树里没有该关键字，就查记录表，如果有，给记录表+1，没有，则往记录表里加一条记录		
+			try {
+				qaSearchHistoryService.setHistory(title);
+			} catch (QaSearchHistoryException e) {
+				throw new QaTreeException("记录查询历史报错了",e);
+			}
 		}
-		//如果层级树里没有该关键字，就查记录表，如果有，给记录表+1，没有，则往记录表里加一条记录		
+		
 	}
 }
