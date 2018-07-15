@@ -10,6 +10,7 @@ import java.util.Optional;
 import org.dozer.MappingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.crp.qa.qaCore.domain.domain.QaPage;
 import com.crp.qa.qaCore.domain.dto.QaPageDto;
@@ -24,6 +25,7 @@ import com.crp.qa.qaCore.util.exception.QaPageException;
  * @ClassName QaPageServiceImpl
  */
 @Service(value="qaPageService")
+@Transactional
 public class QaPageServiceImpl extends BaseServiceImpl<QaPage> implements QaPageService{
 	
 	@Autowired

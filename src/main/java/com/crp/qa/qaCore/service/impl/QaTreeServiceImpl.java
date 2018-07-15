@@ -12,7 +12,6 @@ import java.util.Optional;
 import java.util.Set;
 
 import javax.annotation.Resource;
-import javax.transaction.Transactional;
 
 import org.dozer.MappingException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +20,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.crp.qa.qaCore.domain.domain.QaTree;
 import com.crp.qa.qaCore.domain.dto.QaTreeDto;

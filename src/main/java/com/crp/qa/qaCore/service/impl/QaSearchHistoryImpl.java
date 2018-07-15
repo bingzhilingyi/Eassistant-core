@@ -2,10 +2,10 @@ package com.crp.qa.qaCore.service.impl;
 
 import java.util.Date;
 
-import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.crp.qa.qaCore.domain.domain.QaSearchHistory;
 import com.crp.qa.qaCore.repository.QaSearchHistoryRepository;
