@@ -6,6 +6,8 @@ package com.crp.qa.qaCore.domain.domain;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -15,6 +17,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
@@ -52,7 +55,10 @@ public class QaTree implements Serializable{
 	private String attribute8;
 	private String attribute9;
 	private String attribute10;
+	
 	private QaPage qaPage;
+	
+	private Set<QaTreeKeyword> qaTreeKeyword = new HashSet<QaTreeKeyword>(0);
 	
 	@Id
 	@GeneratedValue(strategy=GenerationType.AUTO)
@@ -222,6 +228,15 @@ public class QaTree implements Serializable{
 	}
 	public void setDomain(String domain) {
 		this.domain = domain;
+	}
+	
+	@OneToMany(fetch=FetchType.LAZY,cascade=CascadeType.ALL)
+	@JoinColumn(name="tree_id",referencedColumnName="tree_id")
+	public Set<QaTreeKeyword> getQaTreeKeyword() {
+		return qaTreeKeyword;
+	}
+	public void setQaTreeKeyword(Set<QaTreeKeyword> qaTreeKeyword) {
+		this.qaTreeKeyword = qaTreeKeyword;
 	}
 	
 	

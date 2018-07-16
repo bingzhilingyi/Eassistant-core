@@ -6,6 +6,7 @@ package com.crp.qa.qaCore.domain.dto;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -41,6 +42,7 @@ public class QaTreeDto implements Serializable{
 	private String attribute10;
 	private QaPageDto qaPage; //该节点的知识页
 	private Set<QaTreeSimpleDto> child; //该节点的子集
+	private Set<QaTreeKeywordDto> qaTreeKeyword = new HashSet<QaTreeKeywordDto>(0);
 	
 	public Integer getTreeId() {
 		return treeId;
@@ -173,6 +175,12 @@ public class QaTreeDto implements Serializable{
 	}
 	public void setDomain(String domain) {
 		this.domain = domain;
+	}
+	public Set<QaTreeKeywordDto> getQaTreeKeyword() {
+		return qaTreeKeyword;
+	}
+	public void setQaTreeKeyword(Set<QaTreeKeywordDto> qaTreeKeyword) {
+		this.qaTreeKeyword = qaTreeKeyword;
 	}
 	
 	
