@@ -1,4 +1,4 @@
-package com.crp.qa.qaCore.domain.domain;
+package com.crp.qa.qaCore.domain.pojo;
 
 import java.util.Date;
 

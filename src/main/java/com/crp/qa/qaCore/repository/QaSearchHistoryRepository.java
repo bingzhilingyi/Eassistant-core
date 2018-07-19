@@ -2,7 +2,7 @@ package com.crp.qa.qaCore.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.crp.qa.qaCore.domain.domain.QaSearchHistory;
+import com.crp.qa.qaCore.domain.pojo.QaSearchHistory;
 
 /**
  * 

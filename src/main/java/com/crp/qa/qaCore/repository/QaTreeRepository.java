@@ -9,8 +9,9 @@ import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
-import com.crp.qa.qaCore.domain.domain.QaTree;
+import com.crp.qa.qaCore.domain.pojo.QaTree;
 
 /**
  * @author huangyue
@@ -71,4 +72,23 @@ public interface QaTreeRepository extends JpaRepository<QaTree,Integer>{
 	 * @return
 	 */
 	public Page<QaTree> findAllByOrderByRankDesc(Pageable pageable);
+	
+	
+	static String findByKeyword_baseSql = "FROM QaTree qt"
+			+ " WHERE concat(IFNULL(qt.title,''),IFNULL(qt.label1,''),IFNULL(qt.label2,''),IFNULL(qt.label3,''),IFNULL(qt.label4,''),IFNULL(qt.label5,''))  like %?1% ";
+	
+	/**
+	 * 根据关键字查询知识页
+	 * @param groupName
+	 * @param pageable
+	 * @return
+	 * @Date 2018年7月10日
+	 * @author huangyue
+	 */
+	@Query(value = "SELECT  qt " + findByKeyword_baseSql)
+	List<QaTree> findByTitleOrKeyword(String keyword);
+	
+	@Query(value = "SELECT  qt " + findByKeyword_baseSql,
+		    countQuery = "SELECT count(1) " + findByKeyword_baseSql)
+	Page<QaTree> findPagedByTitleOrKeyword(String keyword,Pageable pageable);
 }

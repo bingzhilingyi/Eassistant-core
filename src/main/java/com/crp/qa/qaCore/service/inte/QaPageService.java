@@ -6,8 +6,8 @@ package com.crp.qa.qaCore.service.inte;
 
 import java.util.List;
 
-import com.crp.qa.qaCore.domain.domain.QaPage;
 import com.crp.qa.qaCore.domain.dto.QaPageDto;
+import com.crp.qa.qaCore.domain.pojo.QaPage;
 import com.crp.qa.qaCore.util.exception.QaPageException;
 
 /**

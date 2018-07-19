@@ -22,9 +22,9 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.crp.qa.qaCore.domain.domain.QaTree;
 import com.crp.qa.qaCore.domain.dto.QaTreeDto;
 import com.crp.qa.qaCore.domain.dto.QaTreeSimpleDto;
+import com.crp.qa.qaCore.domain.pojo.QaTree;
 import com.crp.qa.qaCore.repository.QaTreeRepository;
 import com.crp.qa.qaCore.service.inte.QaPageService;
 import com.crp.qa.qaCore.service.inte.QaSearchHistoryService;
@@ -88,9 +88,10 @@ public class QaTreeServiceImpl extends BaseServiceImpl<QaTree> implements QaTree
 	 */
 	@Override
 	public QaTreeDto findByTitle(String title) throws QaTreeException{
-		if(title==null||title.length()==0) {
+		if(title==null||title.trim().length()==0) {
 			throw new QaTreeException("传入的title为空！");
 		}
+		title = title.trim();
 		QaTree tree = qaTreeRepository.findByTitle(title);
 		if(tree!=null) {
 			try {
@@ -109,16 +110,15 @@ public class QaTreeServiceImpl extends BaseServiceImpl<QaTree> implements QaTree
 	 */
 	@Override
 	public QaPagedDto<QaTreeSimpleDto> findPagedByTitleLike(String title,Integer page,Integer size) throws QaTreeException{
-		if(title==null||title.length()==0) {
-			return this.findPagedAll(page, size);
+		title = title==null?"":title.trim();
+		page = page==null?0:page;
+		size = size==null?10:size;
+		if(title.equals("")) {
+			throw new QaTreeException("title is null!");
 		}
-		
+		title = title.trim();
 		//把title里的空格换成%
 		title = title.replaceAll("\\s+", "%");
-		
-		//初始化参数
-		page = page==null?1:page;
-		size = size==null?20:size;
 		
 		//定义查询结果
 		List<QaTree> tList = new ArrayList<QaTree>();
@@ -184,7 +184,7 @@ public class QaTreeServiceImpl extends BaseServiceImpl<QaTree> implements QaTree
 				t.setRank(0);
 			}
 			//save
-			t = qaTreeRepository.save(t);
+			t = qaTreeRepository.saveAndFlush(t);
 			mapper.map(t, d);
 			return d;
 		} catch (MappingException e) {
@@ -224,7 +224,7 @@ public class QaTreeServiceImpl extends BaseServiceImpl<QaTree> implements QaTree
 				}
 			}
 			//save
-			t = qaTreeRepository.save(t);
+			t = qaTreeRepository.saveAndFlush(t);
 			mapper.map(t, d);
 			return d;
 		} catch (MappingException e) {
@@ -238,7 +238,7 @@ public class QaTreeServiceImpl extends BaseServiceImpl<QaTree> implements QaTree
 	@Override
 	public void deleteById(Integer id) throws QaTreeException {
 		if(id==null) {
-			throw new QaTreeException("传入对象无主键，删除失败！");
+			throw new QaTreeException("id is null,delete fail");
 		}else if(qaTreeRepository.existsByParentId(id)) {
 			throw new QaTreeException("该节点含有子集，不允许删除！");
 		}else if(!qaTreeRepository.existsById(id)) {
@@ -274,6 +274,9 @@ public class QaTreeServiceImpl extends BaseServiceImpl<QaTree> implements QaTree
 
 	@Override
 	public QaTreeDto findChildrenByTitle(String title) throws QaTreeException{
+		if(title==null || title.trim().equals("")) {
+			throw new QaTreeException("title is null");
+		}
 		//现在查找本节点
 		QaTreeDto father = this.findByTitle(title);
 		//如果本节点存在，且类型为节点，查找子集
@@ -283,6 +286,51 @@ public class QaTreeServiceImpl extends BaseServiceImpl<QaTree> implements QaTree
 			father.setChild(child);
 		}		
 		return father;
+	}
+	
+	@Override
+	public List<QaTreeSimpleDto> findByTitleOrKeyword(String keyword) throws QaTreeException{
+		//把title里的空格换成%
+		keyword = keyword==null?"":keyword.trim().replaceAll("\\s+", "%");
+		if(keyword.equals("")) {
+			throw new QaTreeException("传入关键字为空！");
+		}
+		List<QaTree> treeList = qaTreeRepository.findByTitleOrKeyword(keyword);
+		try {
+			return pojoToDto(QaTreeSimpleDto.class,treeList);
+		} catch (IllegalAccessException | InstantiationException | MappingException e) {
+			throw new QaTreeException("pojo转dto失败",e);
+		}
+	}
+	
+	@Override
+	public QaPagedDto<QaTreeSimpleDto> findPagedByTitleOrKeyword(String keyword,Integer page,Integer size) throws QaTreeException {
+		//把title里的空格换成%
+		keyword = keyword==null?"":keyword.trim().replaceAll("\\s+", "%");
+		page = page==null?0:page;
+		size = size==null?10:size;
+		if(keyword.equals("")) {
+			throw new QaTreeException("传入关键字为空！");
+		}else if(page<0) {
+			throw new QaTreeException("当前页数不能小于0！");
+		}else if(size<1) {
+			throw new QaTreeException("每页条目数不能小于1！");
+		}
+		
+		//设置分页信息
+		Pageable pageable = PageRequest.of(page,size);
+		Page<QaTree> pagedTree = qaTreeRepository.findPagedByTitleOrKeyword(keyword,pageable);
+		try {
+			List<QaTreeSimpleDto> dList = pojoToDto(QaTreeSimpleDto.class,pagedTree.getContent());
+			//返回信息
+			QaPagedDto<QaTreeSimpleDto> returnDto = new QaPagedDto<QaTreeSimpleDto>();
+			returnDto.setList(dList); //数据
+			returnDto.setTotalElements(pagedTree.getTotalElements()); //总条目
+			returnDto.setTotalPages(pagedTree.getTotalPages()); //总页数
+			return returnDto;
+		} catch (IllegalAccessException | InstantiationException e) {
+			throw new QaTreeException("pojo转dto失败",e);
+		}	
 	}
 	
 	@Override
@@ -309,9 +357,11 @@ public class QaTreeServiceImpl extends BaseServiceImpl<QaTree> implements QaTree
 	@Async
 	public void searchRecord(String title) throws QaTreeException {
 		//判断标题是否为空
-		if(title==null||title.length()==0) {
-			throw new QaTreeException("传入标题为空！");
+		if(title==null||title.trim().length()==0) {
+			//do nothing
+			return;
 		}
+		title = title.trim();
 		//去层级树里查该关键字，如果存在就给rank+1
 		QaTreeDto dto = this.findByTitle(title);
 		if(dto!=null) {
@@ -328,4 +378,6 @@ public class QaTreeServiceImpl extends BaseServiceImpl<QaTree> implements QaTree
 		}
 		
 	}
+
+	
 }

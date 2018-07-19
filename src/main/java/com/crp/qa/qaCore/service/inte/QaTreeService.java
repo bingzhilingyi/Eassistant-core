@@ -6,9 +6,9 @@ package com.crp.qa.qaCore.service.inte;
 
 import java.util.List;
 
-import com.crp.qa.qaCore.domain.domain.QaTree;
 import com.crp.qa.qaCore.domain.dto.QaTreeDto;
 import com.crp.qa.qaCore.domain.dto.QaTreeSimpleDto;
+import com.crp.qa.qaCore.domain.pojo.QaTree;
 import com.crp.qa.qaCore.util.exception.QaTreeException;
 import com.crp.qa.qaCore.util.transfer.QaPagedDto;
 
@@ -114,6 +114,26 @@ public interface QaTreeService extends BaseService<QaTree>{
 	 * @throws QaTreeException
 	 */
 	public QaTreeDto findChildrenByTitle(String title) throws QaTreeException;
+	
+	/**
+	 * 根据keyword查找节点
+	 * @param keyword
+	 * @return
+	 * @throws QaTreeException
+	 * @Date 2018年7月17日
+	 * @author huangyue
+	 */
+	public List<QaTreeSimpleDto> findByTitleOrKeyword(String keyword) throws QaTreeException;
+	
+	/**
+	 * 根据keyword查找分页的节点
+	 * @param keyword
+	 * @return
+	 * @throws QaTreeException
+	 * @Date 2018年7月19日
+	 * @author huangyue
+	 */
+	public QaPagedDto<QaTreeSimpleDto> findPagedByTitleOrKeyword(String keyword,Integer page,Integer size) throws QaTreeException;
 	
 	/**
 	 * 以rank值排序查找指定数量的节点

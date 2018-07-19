@@ -22,7 +22,7 @@ public class QaPagedTransfer extends QaBaseTransfer{
 	private static final long serialVersionUID = 1L;
 	private Long totalElements; //总数
 	private Integer totalPages; //总页数
-	private List<QaTreeSimpleDto> ct;
+	//private List<QaTreeSimpleDto> ct;
 	
 	/**
 	 * 构造方法
@@ -50,14 +50,14 @@ public class QaPagedTransfer extends QaBaseTransfer{
 		this.totalPages = totalPages;
 	}
 
-	public List<QaTreeSimpleDto> getCt() {
-		return ct;
-	}
-
-	public void setCt(List<QaTreeSimpleDto> ct) {
-		this.ct = ct;
-	}
-	
-	
+//	public List<QaTreeSimpleDto> getCt() {
+//		return ct;
+//	}
+//
+//	public void setCt(List<QaTreeSimpleDto> ct) {
+//		this.ct = ct;
+//	}
+//	
+//	
 	
 }

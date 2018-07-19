@@ -2,7 +2,7 @@
  * huangyue
  * 2018年5月24日
  */
-package com.crp.qa.qaCore.domain.domain;
+package com.crp.qa.qaCore.domain.pojo;
 
 import java.io.Serializable;
 import java.util.Date;

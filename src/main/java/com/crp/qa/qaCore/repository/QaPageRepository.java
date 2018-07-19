@@ -8,7 +8,7 @@ import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.crp.qa.qaCore.domain.domain.QaPage;
+import com.crp.qa.qaCore.domain.pojo.QaPage;
 
 /**
  * @author huangyue

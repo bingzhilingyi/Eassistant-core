@@ -12,8 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.crp.qa.qaCore.domain.domain.QaPage;
 import com.crp.qa.qaCore.domain.dto.QaPageDto;
+import com.crp.qa.qaCore.domain.pojo.QaPage;
 import com.crp.qa.qaCore.repository.QaPageRepository;
 import com.crp.qa.qaCore.service.inte.QaPageService;
 import com.crp.qa.qaCore.util.exception.QaPageException;

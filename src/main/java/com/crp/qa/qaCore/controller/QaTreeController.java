@@ -136,7 +136,7 @@ public class QaTreeController extends BaseController{
 		QaPagedTransfer dto = new QaPagedTransfer("success","查询成功");
 		try {
 			QaPagedDto<QaTreeSimpleDto> d = qaTreeService.findPagedByTitleLike(title, page, size);
-			dto.setCt(d.getList());
+			//dto.setCt(d.getList());
 			dto.setContent(d.getList());
 			dto.setTotalElements(d.getTotalElements());
 			dto.setTotalPages(d.getTotalPages());
@@ -219,14 +219,56 @@ public class QaTreeController extends BaseController{
 	@GetMapping(path="/findChildrenByTitle")
 	public QaBaseTransfer findChildrenByTitle(
 			@RequestParam(value="title") String title) {
-		//String isNeedRecord = req.getParameter("isNeedRecord");
-		//判断是否需要记录此次请求，需要就会去记录
-		//isNeedRecord(isNeedRecord,title);
 		QaBaseTransfer dto = new QaBaseTransfer("success","查询成功！");
 		try {
 			//进行查询
 			QaTreeDto d =qaTreeService.findChildrenByTitle(title);
 			dto.setContent(d);
+		}catch (QaTreeException e) {
+			returnError(e,dto);
+		}
+		return dto;
+	}
+	
+	/**
+	 * 根据关键字精确查询知识页信息
+	 * @param keyword
+	 * @return
+	 * @Date 2018年7月17日
+	 * @author huangyue
+	 */
+	@GetMapping(path="/findByTitleOrKeyword")
+	public QaBaseTransfer findByTitleOrKeyword(@RequestParam(value="keyword") String keyword) {
+		QaBaseTransfer dto = new QaBaseTransfer("success","查询成功！");
+		try {
+			//进行查询
+			List<QaTreeSimpleDto> l =qaTreeService.findByTitleOrKeyword(keyword);
+			dto.setContent(l);
+		}catch (QaTreeException e) {
+			returnError(e,dto);
+		}
+		return dto;
+	}
+	
+	/**
+	 * 根据关键字精确查询知识页信息
+	 * @param keyword
+	 * @return
+	 * @Date 2018年7月17日
+	 * @author huangyue
+	 */
+	@GetMapping(path="/findPagedByTitleOrKeyword")
+	public QaPagedTransfer findPagedByTitleOrKeyword(
+			@RequestParam(value="keyword") String keyword,
+			@RequestParam(value="page") Integer page,
+			@RequestParam(value="size") Integer size) {
+		QaPagedTransfer dto = new QaPagedTransfer("success","查询成功");
+		try {
+			//进行查询
+			QaPagedDto<QaTreeSimpleDto> l =qaTreeService.findPagedByTitleOrKeyword(keyword,page,size);
+			dto.setContent(l.getList());
+			dto.setTotalElements(l.getTotalElements());
+			dto.setTotalPages(l.getTotalPages());
 		}catch (QaTreeException e) {
 			returnError(e,dto);
 		}
