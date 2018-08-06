@@ -48,6 +48,7 @@ public class QaTreeServiceImpl extends BaseServiceImpl<QaTree> implements QaTree
 	public QaPageService qaPageService;
 	@Resource(name="qaSearchHistoryService")
 	private QaSearchHistoryService qaSearchHistoryService;
+	
 
 	/* (non-Javadoc)
 	 * @see com.crp.qa.qaCore.service.inte.QaTreeService#findRoot()
@@ -71,10 +72,8 @@ public class QaTreeServiceImpl extends BaseServiceImpl<QaTree> implements QaTree
 	 * @see com.crp.qa.qaCore.service.inte.QaTreeService#findByParentId(java.lang.Integer)
 	 */
 	@Override
-	public List<QaTreeSimpleDto> findByParentId(Integer parentId) throws QaTreeException{
-		if(parentId==null) {
-			throw new QaTreeException("传入的parentId为空！");
-		}
+	public List<QaTreeSimpleDto> findByParentId(Integer parentId) throws QaTreeException,NullPointerException{
+		checkNull(parentId,"传入的parentId为空！");
 		List<QaTree> treeList = qaTreeRepository.findByParentId(parentId);
 		try {
 			return pojoToDto(QaTreeSimpleDto.class,treeList);
@@ -87,12 +86,32 @@ public class QaTreeServiceImpl extends BaseServiceImpl<QaTree> implements QaTree
 	 * @see com.crp.qa.qaCore.service.inte.QaTreeService#findByTitle(java.lang.String)
 	 */
 	@Override
-	public QaTreeDto findByTitle(String title) throws QaTreeException{
-		if(title==null||title.trim().length()==0) {
-			throw new QaTreeException("传入的title为空！");
+	public QaTreeDto findByTitle(String title) throws QaTreeException,NullPointerException{
+		return findByTitle(title,null,false);
+	}
+	
+	@Override
+	public QaTreeDto findByTitle(String title,List<String> domain) throws QaTreeException,NullPointerException{
+		return findByTitle(title,domain,true);
+	}
+	
+	@Override
+	public QaTreeDto findByTitle(String title,List<String> domain,Boolean strict) throws QaTreeException,NullPointerException{
+		title = title==null?"":title.trim();
+		checkNull(title,"传入的title为空！");
+		
+		//如果是严格模式，需要判断domain
+		if(strict) {
+			checkNull(domain,"传入的域为空！");
 		}
-		title = title.trim();
-		QaTree tree = qaTreeRepository.findByTitle(title);
+		
+		QaTree tree;
+		if(strict) {
+			tree = qaTreeRepository.findByTitleAndDomainIn(title,domain);
+		}else {
+			tree = qaTreeRepository.findByTitle(title);
+		}
+		 
 		if(tree!=null) {
 			try {
 				QaTreeDto treeDto = new QaTreeDto();
@@ -109,14 +128,13 @@ public class QaTreeServiceImpl extends BaseServiceImpl<QaTree> implements QaTree
 	 * @see com.crp.qa.qaCore.service.inte.QaTreeService#findByTitleLike(java.lang.String)
 	 */
 	@Override
-	public QaPagedDto<QaTreeSimpleDto> findPagedByTitleLike(String title,Integer page,Integer size) throws QaTreeException{
+	public QaPagedDto<QaTreeSimpleDto> findPagedByTitleLike(String title,Integer page,Integer size) throws QaTreeException,NullPointerException{
 		title = title==null?"":title.trim();
 		page = page==null?0:page;
 		size = size==null?10:size;
-		if(title.equals("")) {
-			throw new QaTreeException("title is null!");
-		}
-		title = title.trim();
+		
+		checkNull(title,"title is null!");
+		
 		//把title里的空格换成%
 		title = title.replaceAll("\\s+", "%");
 		
@@ -144,10 +162,8 @@ public class QaTreeServiceImpl extends BaseServiceImpl<QaTree> implements QaTree
 	}
 	
 	@Override
-	public QaTreeDto findById(Integer id) throws QaTreeException{
-		if(id==null) {
-			throw new QaTreeException("传入的Id为空！");
-		}
+	public QaTreeDto findById(Integer id) throws QaTreeException,NullPointerException{
+		checkNull(id,"传入的Id为空！");
 		Optional<QaTree> opt = qaTreeRepository.findById(id);
 		if(opt.isPresent()) {
 			try {
@@ -165,13 +181,18 @@ public class QaTreeServiceImpl extends BaseServiceImpl<QaTree> implements QaTree
 	 * @see com.crp.qa.qaCore.service.inte.QaTreeService#save(com.crp.qa.qaCore.domain.dto.QaTreeDto)
 	 */
 	@Override
-	public QaTreeDto save(QaTreeDto d) throws QaTreeException {
-		if(d==null) {
-			throw new QaTreeException("传入对象为空！");
-		}else if(d.getTreeId()!=null) {
+	public QaTreeDto save(QaTreeDto d) throws QaTreeException ,NullPointerException{
+		checkNull(d,"传入对象为空！");
+		checkNull(d.getTitle(),"标题为空！");
+		checkNull(d.getDomain(),"域为空！");
+		checkNull(d.getParentId(),"父节点不存在！");
+		
+		if(d.getTreeId() != null) {
 			throw new QaTreeException("传入对象已有主键！");
 		}else if(qaTreeRepository.existsByTitle(d.getTitle())) {
 			throw new QaTreeException("该标题已存在，请修改标题！");
+		}else if(d.getParentId()==0 && qaTreeRepository.existsByDomain(d.getDomain())) {
+			throw new QaTreeException("域已存在，请修改域！");
 		}
 		try {
 			QaTree t = new QaTree();
@@ -179,6 +200,10 @@ public class QaTreeServiceImpl extends BaseServiceImpl<QaTree> implements QaTree
 			//设置日期
 			t.setCreationDate(new Date());
 			t.setLastUpdateDate(new Date());
+			//默认为是节点
+			if(t.getIsPage()==null) {
+				t.setIsPage("N");
+			}
 			//热度默认为0
 			if(t.getRank()==null) {
 				t.setRank(0);
@@ -196,12 +221,11 @@ public class QaTreeServiceImpl extends BaseServiceImpl<QaTree> implements QaTree
 	 * @see com.crp.qa.qaCore.service.inte.QaTreeService#update(com.crp.qa.qaCore.domain.dto.QaTreeDto)
 	 */
 	@Override
-	public QaTreeDto update(QaTreeDto d) throws QaTreeException {
-		if(d==null) {
-			throw new QaTreeException("传入对象为空！");
-		}else if(d.getTreeId()==null) {
-			throw new QaTreeException("传入对象无主键！");
-		}else if(d.getIsPage().equals("Y")&&qaTreeRepository.findByParentId(d.getTreeId()).size()>0) {
+	public QaTreeDto update(QaTreeDto d) throws QaTreeException,NullPointerException {
+		checkNull(d,"传入对象为空！");
+		checkNull(d.getTreeId(),"传入对象无主键！");
+		
+		if(d.getIsPage().equals("Y")&&qaTreeRepository.findByParentId(d.getTreeId()).size()>0) {
 			throw new QaTreeException("该节点含有子集，不允许设为知识页！");
 		}else if(!qaTreeRepository.existsById(d.getTreeId())) {
 			throw new QaTreeException("传入对象在数据库中不存在，更新失败！");
@@ -236,10 +260,9 @@ public class QaTreeServiceImpl extends BaseServiceImpl<QaTree> implements QaTree
 	 * @see com.crp.qa.qaCore.service.inte.QaTreeService#deleteById(java.lang.Integer)
 	 */
 	@Override
-	public void deleteById(Integer id) throws QaTreeException {
-		if(id==null) {
-			throw new QaTreeException("id is null,delete fail");
-		}else if(qaTreeRepository.existsByParentId(id)) {
+	public void deleteById(Integer id) throws QaTreeException,NullPointerException {
+		checkNull(id,"id is null,delete fail");
+		if(qaTreeRepository.existsByParentId(id)) {
 			throw new QaTreeException("该节点含有子集，不允许删除！");
 		}else if(!qaTreeRepository.existsById(id)) {
 			throw new QaTreeException("要删除的主键在数据库里不存在，删除失败！");
@@ -273,28 +296,41 @@ public class QaTreeServiceImpl extends BaseServiceImpl<QaTree> implements QaTree
 	}
 
 	@Override
-	public QaTreeDto findChildrenByTitle(String title) throws QaTreeException{
-		if(title==null || title.trim().equals("")) {
-			throw new QaTreeException("title is null");
+	public QaTreeDto findChildrenByTitle(String title) throws QaTreeException,NullPointerException{
+		return findChildrenByTitle(title,null,false);
+	}
+	@Override
+	public QaTreeDto findChildrenByTitle(String title,List<String> domain) throws QaTreeException,NullPointerException{
+		return findChildrenByTitle(title,domain,true);
+	}
+	
+	@Override
+	public QaTreeDto findChildrenByTitle(String title,List<String> domain,Boolean strict) throws QaTreeException,NullPointerException{
+		title = title==null?"":title.trim();
+		checkNull(title,"title is null");
+		//严格模式判断domain是否为空
+		if(strict) {
+			checkNull(domain,"domain is empty");
 		}
-		//现在查找本节点
-		QaTreeDto father = this.findByTitle(title);
-		//如果本节点存在，且类型为节点，查找子集
+		QaTreeDto father;
+		if(strict) {
+			father = this.findByTitle(title,domain);
+		}else {
+			father = this.findByTitle(title);
+		}
 		if(father!=null&&father.getTreeId()!=null&&father.getIsPage().equals("N")) {
 			List<QaTreeSimpleDto> childList = this.findByParentId(father.getTreeId());
 			Set<QaTreeSimpleDto> child = new HashSet<QaTreeSimpleDto>(childList);
 			father.setChild(child);
-		}		
+		}	
 		return father;
 	}
 	
 	@Override
-	public List<QaTreeSimpleDto> findByTitleOrKeyword(String keyword) throws QaTreeException{
+	public List<QaTreeSimpleDto> findByTitleOrKeyword(String keyword) throws QaTreeException,NullPointerException{
 		//把title里的空格换成%
 		keyword = keyword==null?"":keyword.trim().replaceAll("\\s+", "%");
-		if(keyword.equals("")) {
-			throw new QaTreeException("传入关键字为空！");
-		}
+		checkNull(keyword,"传入关键字为空！");
 		List<QaTree> treeList = qaTreeRepository.findByTitleOrKeyword(keyword);
 		try {
 			return pojoToDto(QaTreeSimpleDto.class,treeList);
@@ -304,14 +340,31 @@ public class QaTreeServiceImpl extends BaseServiceImpl<QaTree> implements QaTree
 	}
 	
 	@Override
-	public QaPagedDto<QaTreeSimpleDto> findPagedByTitleOrKeyword(String keyword,Integer page,Integer size) throws QaTreeException {
+	public QaPagedDto<QaTreeSimpleDto> findPagedByTitleOrKeyword(String keyword,Integer page,Integer size) throws QaTreeException ,NullPointerException{
+		return findPagedByTitleOrKeyword(keyword,page,size,null,false);	
+	}
+	
+	@Override
+	public QaPagedDto<QaTreeSimpleDto> findPagedByTitleOrKeyword(String keyword, Integer page,
+			Integer size, List<String> domain) throws QaTreeException,NullPointerException {
+		return findPagedByTitleOrKeyword(keyword,page,size,domain,true);
+	}
+	
+	@Override
+	public QaPagedDto<QaTreeSimpleDto> findPagedByTitleOrKeyword(String keyword, Integer page,
+			Integer size, List<String> domain,Boolean strict) throws QaTreeException,NullPointerException {
 		//把title里的空格换成%
 		keyword = keyword==null?"":keyword.trim().replaceAll("\\s+", "%");
 		page = page==null?0:page;
 		size = size==null?10:size;
-		if(keyword.equals("")) {
-			throw new QaTreeException("传入关键字为空！");
-		}else if(page<0) {
+		
+		checkNull(keyword,"传入关键字为空！");
+		
+		if(strict) {
+			checkNull(domain,"传入域为空！");
+		}
+		
+		if(page<0) {
 			throw new QaTreeException("当前页数不能小于0！");
 		}else if(size<1) {
 			throw new QaTreeException("每页条目数不能小于1！");
@@ -319,7 +372,13 @@ public class QaTreeServiceImpl extends BaseServiceImpl<QaTree> implements QaTree
 		
 		//设置分页信息
 		Pageable pageable = PageRequest.of(page,size);
-		Page<QaTree> pagedTree = qaTreeRepository.findPagedByTitleOrKeyword(keyword,pageable);
+		Page<QaTree> pagedTree;
+		if(strict) {
+			pagedTree = qaTreeRepository.findPagedByTitleOrKeywordAndDomain(keyword,domain,pageable);
+		}else {
+			pagedTree = qaTreeRepository.findPagedByTitleOrKeyword(keyword,pageable);
+		}
+		
 		try {
 			List<QaTreeSimpleDto> dList = pojoToDto(QaTreeSimpleDto.class,pagedTree.getContent());
 			//返回信息
@@ -330,16 +389,34 @@ public class QaTreeServiceImpl extends BaseServiceImpl<QaTree> implements QaTree
 			return returnDto;
 		} catch (IllegalAccessException | InstantiationException e) {
 			throw new QaTreeException("pojo转dto失败",e);
-		}	
+		}
 	}
 	
 	@Override
-	public QaPagedDto<QaTreeSimpleDto> findTopRank(Integer size) throws QaTreeException{
+	public QaPagedDto<QaTreeSimpleDto> findTopRank(Integer size) throws QaTreeException,NullPointerException{
+		return findTopRank(size,null,false);
+	}
+	
+	@Override
+	public QaPagedDto<QaTreeSimpleDto> findTopRank(Integer size,List<String> domain) throws QaTreeException,NullPointerException{
+		return findTopRank(size,domain,true);
+	}
+	
+	@Override
+	public QaPagedDto<QaTreeSimpleDto> findTopRank(Integer size,List<String> domain,Boolean strict) throws QaTreeException,NullPointerException{
 		size = size==null?100:size;
+		if(strict) {
+			checkNull(domain,"传入域为空");
+		}
 		//设置分页信息，永远查第一页
 		Pageable pageable = PageRequest.of(0,size);
 		//查询数据
-		Page<QaTree> pagedTree = qaTreeRepository.findAllByOrderByRankDesc(pageable);
+		Page<QaTree> pagedTree;
+		if(strict) {
+			pagedTree = qaTreeRepository.findAllByDomainInOrderByRankDesc(domain,pageable);
+		}else {
+			pagedTree = qaTreeRepository.findAllByOrderByRankDesc(pageable);
+		}
 		try {
 			List<QaTreeSimpleDto> dList = pojoToDto(QaTreeSimpleDto.class,pagedTree.getContent());
 			//返回信息
@@ -350,34 +427,9 @@ public class QaTreeServiceImpl extends BaseServiceImpl<QaTree> implements QaTree
 			return returnDto;
 		} catch (IllegalAccessException | InstantiationException e) {
 			throw new QaTreeException("pojo转dto失败",e);
-		}	
+		}
 	}
 
-	@Override
-	@Async
-	public void searchRecord(String title) throws QaTreeException {
-		//判断标题是否为空
-		if(title==null||title.trim().length()==0) {
-			//do nothing
-			return;
-		}
-		title = title.trim();
-		//去层级树里查该关键字，如果存在就给rank+1
-		QaTreeDto dto = this.findByTitle(title);
-		if(dto!=null) {
-			Integer nowCount = dto.getRank()==null?0:dto.getRank();
-			dto.setRank(nowCount+1);
-			this.update(dto);
-		}else {
-			//如果层级树里没有该关键字，就查记录表，如果有，给记录表+1，没有，则往记录表里加一条记录		
-			try {
-				qaSearchHistoryService.setHistory(title);
-			} catch (QaSearchHistoryException e) {
-				throw new QaTreeException("记录查询历史报错了",e);
-			}
-		}
-		
-	}
-
+	
 	
 }

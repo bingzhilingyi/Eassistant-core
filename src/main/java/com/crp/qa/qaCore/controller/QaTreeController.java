@@ -4,11 +4,13 @@
  */
 package com.crp.qa.qaCore.controller;
 
+import java.util.Arrays;
 import java.util.List;
 
 import javax.annotation.Resource;
 
 import org.springframework.http.HttpEntity;
+import org.springframework.lang.Nullable;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -52,7 +54,7 @@ public class QaTreeController extends BaseController{
 		try {
 			List<QaTreeSimpleDto> l = qaTreeService.findRoot();
 			dto.setContent(l);
-		} catch (QaTreeException e) {
+		} catch (Exception e) {
 			returnError(e,dto);
 		}
 		return dto;
@@ -72,7 +74,7 @@ public class QaTreeController extends BaseController{
 		try {
 			List<QaTreeSimpleDto> l = qaTreeService.findByParentId(parentId);
 			dto.setContent(l);
-		} catch (QaTreeException e) {
+		} catch (Exception e) {
 			returnError(e,dto);
 		}
 		return dto;
@@ -92,7 +94,7 @@ public class QaTreeController extends BaseController{
 		try {
 			QaTreeDto d = qaTreeService.findById(id);
 			dto.setContent(d);
-		} catch (QaTreeException e) {
+		} catch (Exception e) {
 			returnError(e,dto);
 		}
 		return dto;
@@ -106,13 +108,21 @@ public class QaTreeController extends BaseController{
 	 * @param title
 	 * @return
 	 */
-	@GetMapping(path="/getByTitle")
-	public QaBaseTransfer findByTitle(@RequestParam(value="title") String title) {
-		QaBaseTransfer dto = new QaBaseTransfer("success","查询成功");
+	@GetMapping(path="/findByTitle")
+	public QaBaseTransfer findByTitle(
+			@RequestParam(value="title") String title,
+			@Nullable @RequestParam(value="domain") String domain) {
+		QaBaseTransfer dto = new QaBaseTransfer("success","查询成功");	
 		try {
-			QaTreeDto d = qaTreeService.findByTitle(title);
+			QaTreeDto d ;
+			if(domain==null) {
+				d = qaTreeService.findByTitle(title);
+			}else {
+				List<String> domainList = Arrays.asList(domain.substring(1, domain.length()-1).split(","));
+				d = qaTreeService.findByTitle(title,domainList);
+			}
 			dto.setContent(d);
-		} catch (QaTreeException e) {
+		} catch (Exception e) {
 			returnError(e,dto);
 		}
 		return dto;
@@ -136,11 +146,10 @@ public class QaTreeController extends BaseController{
 		QaPagedTransfer dto = new QaPagedTransfer("success","查询成功");
 		try {
 			QaPagedDto<QaTreeSimpleDto> d = qaTreeService.findPagedByTitleLike(title, page, size);
-			//dto.setCt(d.getList());
 			dto.setContent(d.getList());
 			dto.setTotalElements(d.getTotalElements());
 			dto.setTotalPages(d.getTotalPages());
-		} catch (QaTreeException e) {
+		} catch (Exception e) {
 			returnError(e,dto);
 		}
 		return dto;
@@ -161,7 +170,7 @@ public class QaTreeController extends BaseController{
 		try {
 			QaTreeDto userDto = qaTreeService.save(d);
 			dto.setContent(userDto);
-		}catch (QaTreeException e) {
+		}catch (Exception e) {
 			returnError(e,dto);
 		}
 		return dto;
@@ -184,7 +193,7 @@ public class QaTreeController extends BaseController{
 		try {
 			QaTreeDto userDto = qaTreeService.update(d);
 			dto.setContent(userDto);
-		}catch (QaTreeException e) {
+		}catch (Exception e) {
 			returnError(e,dto);
 		}
 		return dto;
@@ -203,7 +212,7 @@ public class QaTreeController extends BaseController{
 		QaBaseTransfer dto = new QaBaseTransfer("success","删除成功！");
 		try {
 			qaTreeService.deleteById(id);
-		}catch (QaTreeException e) {
+		}catch (Exception e) {
 			returnError(e,dto);
 		}
 		return dto;
@@ -218,13 +227,19 @@ public class QaTreeController extends BaseController{
 	 */
 	@GetMapping(path="/findChildrenByTitle")
 	public QaBaseTransfer findChildrenByTitle(
-			@RequestParam(value="title") String title) {
+			@RequestParam(value="title") String title,
+			@Nullable @RequestParam(value="domain") String domain) {
 		QaBaseTransfer dto = new QaBaseTransfer("success","查询成功！");
 		try {
-			//进行查询
-			QaTreeDto d =qaTreeService.findChildrenByTitle(title);
+			QaTreeDto d;
+			if(domain==null) {
+				d = qaTreeService.findChildrenByTitle(title);
+			}else {
+				List<String> domainList = stringToList(domain);
+				d = qaTreeService.findChildrenByTitle(title,domainList);
+			}
 			dto.setContent(d);
-		}catch (QaTreeException e) {
+		}catch (Exception e) {
 			returnError(e,dto);
 		}
 		return dto;
@@ -244,7 +259,7 @@ public class QaTreeController extends BaseController{
 			//进行查询
 			List<QaTreeSimpleDto> l =qaTreeService.findByTitleOrKeyword(keyword);
 			dto.setContent(l);
-		}catch (QaTreeException e) {
+		}catch (Exception e) {
 			returnError(e,dto);
 		}
 		return dto;
@@ -261,15 +276,21 @@ public class QaTreeController extends BaseController{
 	public QaPagedTransfer findPagedByTitleOrKeyword(
 			@RequestParam(value="keyword") String keyword,
 			@RequestParam(value="page") Integer page,
-			@RequestParam(value="size") Integer size) {
+			@RequestParam(value="size") Integer size,
+			@Nullable @RequestParam(value="domain")String domain) {
 		QaPagedTransfer dto = new QaPagedTransfer("success","查询成功");
 		try {
-			//进行查询
-			QaPagedDto<QaTreeSimpleDto> l =qaTreeService.findPagedByTitleOrKeyword(keyword,page,size);
+			QaPagedDto<QaTreeSimpleDto> l;
+			if(domain==null) {
+				l = qaTreeService.findPagedByTitleOrKeyword(keyword,page,size);
+			} else {
+				List<String> domainList = stringToList(domain);
+				l =qaTreeService.findPagedByTitleOrKeyword(keyword,page,size,domainList);
+			}
 			dto.setContent(l.getList());
 			dto.setTotalElements(l.getTotalElements());
 			dto.setTotalPages(l.getTotalPages());
-		}catch (QaTreeException e) {
+		}catch (Exception e) {
 			returnError(e,dto);
 		}
 		return dto;
@@ -283,53 +304,39 @@ public class QaTreeController extends BaseController{
 	 * @return
 	 */
 	@GetMapping(path="/findTopRank")
-	public QaPagedTransfer findTopRank(@RequestParam(value="size") Integer size) {
+	public QaPagedTransfer findTopRank(
+			@RequestParam(value="size") Integer size,
+			@Nullable @RequestParam(value="domain")String domain) {
 		QaPagedTransfer dto = new QaPagedTransfer("success","查询成功！");
 		try {
-			QaPagedDto<QaTreeSimpleDto> d = qaTreeService.findTopRank(size);
+			QaPagedDto<QaTreeSimpleDto> d ;
+			if(domain == null) {
+				d = qaTreeService.findTopRank(size);
+			}else {
+				List<String> domainList = stringToList(domain);
+				d = qaTreeService.findTopRank(size,domainList);
+			}
 			dto.setContent(d.getList());
 			dto.setTotalElements(d.getTotalElements());
 			dto.setTotalPages(d.getTotalPages());
-		} catch (QaTreeException e) {
+		} catch (Exception e) {
 			this.returnError(e, dto);
 		}
 		return dto;
 	}
 	
-	/**
-	 * 记录传入的查询条件
-	 * @param title
-	 * @return
-	 * @Date 2018年6月15日
-	 * @author huangyue
-	 */
-	@PostMapping(path="/searchRecord")
-	public QaBaseTransfer searchRecord(@RequestParam(value="title") String title) {
-		QaBaseTransfer dto = new QaBaseTransfer("success","记录成功！");
-		try {
-			qaTreeService.searchRecord(title);
-		}catch (QaTreeException e) {
-			returnError(e,dto);
-		}
-		return dto;
-	}
 	
-	/**
-	 * 判断是否需要记录，如果需要就进行记录
-	 * @param isNeedRecord
-	 * @return
-	 * @Date 2018年6月15日
-	 * @author huangyue
-	 */
-//	private void isNeedRecord(String needRecord,String title) {
-//		Boolean isNeedRecord = needRecord==null?false:(needRecord.equals("true")?true:false);
-//		if(isNeedRecord) {
-//			try {
-//				qaTreeService.searchRecord(title);
-//			} catch (QaTreeException e) {
-//				//由于记录查询历史不需要返回，所以如果报错只写日志就行
-//				LOGGER.error(e.getMessage(),e);
-//			}
-//		}
-//	}
+	
+	private List<String> stringToList(String str)throws QaTreeException{
+		str = str == null?"":str.trim();
+		if(str.length()<2 || !str.startsWith("[") || !str.endsWith("]")) {
+			throw new QaTreeException("传入字符串不是数组！");
+		}
+		List<String> domainList = Arrays.asList(str.substring(1, str.length()-1).split(","));
+		for(int i=0;i<domainList.size();i++) {
+			String newStr = domainList.get(i).trim();
+			domainList.set(i, newStr);
+		}
+		return domainList;
+	}
 }

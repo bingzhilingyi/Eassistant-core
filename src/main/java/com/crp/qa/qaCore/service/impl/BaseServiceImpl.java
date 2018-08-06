@@ -36,4 +36,12 @@ public class BaseServiceImpl<T> implements BaseService<T>{
 		return destList;
 	}
 	
+	@Override
+	public void checkNull(Object o,String message) throws NullPointerException {
+		if( o == null 
+				|| ( o instanceof String && "".equals( (String)o ) ) 
+				|| ( o instanceof List && ((List<?>)o).size()==0) ){					 
+			throw new NullPointerException(message);
+		}
+	}
 }

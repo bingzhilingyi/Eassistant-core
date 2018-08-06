@@ -3,6 +3,7 @@ package com.crp.qa.qaCore.service.impl;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -71,8 +72,8 @@ public class QaTreeServiceImplTest {
 		try {
 			@SuppressWarnings("unused")
 			List<QaTreeSimpleDto> list = qaTreeService.findByParentId(null);
-			fail("expected a QaTreeException to be throw");
-		}catch(QaTreeException e) {
+			fail("expected a Exception to be throw");
+		}catch(Exception e) {
 			assertThat(e.getMessage(),is("传入的parentId为空！"));
 		}
 	}
@@ -92,17 +93,35 @@ public class QaTreeServiceImplTest {
 		assertNull(dto);
 	}
 	
+	@Test
+	public void findByTitle3() throws Exception{
+		List<String> domain = new ArrayList<String>();
+		domain.add("SRM");
+		domain.add("PAY");
+		QaTreeDto dto = qaTreeService.findByTitle("支付系统",domain);
+		assertTrue(dto!=null);
+	}
+	@Test
+	public void findByTitle4() throws Exception{
+		List<String> domain = new ArrayList<String>();
+		domain.add("PAY");
+		QaTreeDto dto = qaTreeService.findByTitle("SRM",domain);
+		assertTrue(dto==null);
+	}
+	
 	//测试根据标题精确查询,报错
 	@Test
 	public void findByTitleException() throws Exception{
 		try {
 			@SuppressWarnings("unused")
 			QaTreeDto dto = qaTreeService.findByTitle(null);
-			fail("expected a QaTreeException to be throw");
-		}catch(QaTreeException e) {
+			fail("expected a Exception to be throw");
+		}catch(Exception e) {
 			assertThat(e.getMessage(),is("传入的title为空！"));
 		}	
 	}
+	
+	
 	
 	//test find paged data by title like , have response
 	@Test
@@ -128,8 +147,8 @@ public class QaTreeServiceImplTest {
 		try {
 			@SuppressWarnings("unused")
 			QaPagedDto<QaTreeSimpleDto> p = qaTreeService.findPagedByTitleLike(null,0,10);
-			fail("expected a QaTreeException to be throw");
-		}catch(QaTreeException e) {
+			fail("expected a Exception to be throw");
+		}catch(Exception e) {
 			assertThat(e.getMessage(),is("title is null!"));
 		}
 	}
@@ -154,8 +173,8 @@ public class QaTreeServiceImplTest {
 		try {
 			@SuppressWarnings("unused")
 			QaTreeDto t = qaTreeService.findById(null);
-			fail("expected a QaTreeException to be throw");
-		}catch(QaTreeException e) {
+			fail("expected a Exception to be throw");
+		}catch(Exception e) {
 			assertThat(e.getMessage(),is("传入的Id为空！"));
 		}
 	}
@@ -163,11 +182,10 @@ public class QaTreeServiceImplTest {
 	//test save success
 	@Test
 	public void save() throws Exception{
-		QaTreeDto t = new QaTreeDto();
-		t.setTitle("testSave");
-		t.setIsPage("Y");
+		QaTreeDto t = new QaTreeDto("testSave","SRM",null,1);
 		QaTreeDto d = qaTreeService.save(t);
 		assertTrue(d.getTreeId()!=null);
+		assertEquals("N",d.getIsPage());
 		//remember delete the data finally
 		qaTreeService.deleteById(d.getTreeId());
 		d = qaTreeService.findById(d.getTreeId());
@@ -180,8 +198,8 @@ public class QaTreeServiceImplTest {
 		try {
 			@SuppressWarnings("unused")
 			QaTreeDto d = qaTreeService.save(null);
-			fail("expected a QaTreeException to be throw");
-		}catch(QaTreeException e) {
+			fail("expected a Exception to be throw");
+		}catch(Exception e) {
 			assertThat(e.getMessage(),is("传入对象为空！"));
 		}
 	}
@@ -190,14 +208,11 @@ public class QaTreeServiceImplTest {
 	@Test
 	public void saveException2() throws Exception{
 		try {
-			QaTreeDto t = new QaTreeDto();
-			t.setTreeId(-10);
-			t.setTitle("testSave");
-			t.setIsPage("Y");
+			QaTreeDto t = new QaTreeDto(-10,"testSave","SRM","N",1);
 			@SuppressWarnings("unused")
 			QaTreeDto d = qaTreeService.save(t);
-			fail("expected a QaTreeException to be throw");
-		}catch(QaTreeException e) {
+			fail("expected a Exception to be throw");
+		}catch(Exception e) {
 			assertThat(e.getMessage(),is("传入对象已有主键！"));
 		}
 	}
@@ -206,14 +221,51 @@ public class QaTreeServiceImplTest {
 	@Test
 	public void saveException3() throws Exception{
 		try {
-			QaTreeDto t = new QaTreeDto();
-			t.setTitle("SRM");
-			t.setIsPage("Y");
+			QaTreeDto t = new QaTreeDto("供应商","SRM","N",1);
 			@SuppressWarnings("unused")
 			QaTreeDto d = qaTreeService.save(t);
-			fail("expected a QaTreeException to be throw");
-		}catch(QaTreeException e) {
+			fail("expected a Exception to be throw");
+		}catch(Exception e) {
 			assertThat(e.getMessage(),is("该标题已存在，请修改标题！"));
+		}
+	}
+	
+	//test save ，exception
+	@Test
+	public void saveException4() throws Exception{
+		try {
+			QaTreeDto t = new QaTreeDto(null,"SRM","N",1);
+			@SuppressWarnings("unused")
+			QaTreeDto d = qaTreeService.save(t);
+			fail("expected a Exception to be throw");
+		}catch(Exception e) {
+			assertThat(e.getMessage(),is("标题为空！"));
+		}
+	}
+	
+	//test save ，exception
+	@Test
+	public void saveException5() throws Exception{
+		try {
+			QaTreeDto t = new QaTreeDto("testSave","","N",1);
+			@SuppressWarnings("unused")
+			QaTreeDto d = qaTreeService.save(t);
+			fail("expected a Exception to be throw");
+		}catch(Exception e) {
+			assertThat(e.getMessage(),is("域为空！"));
+		}
+	}
+	
+	//test save ，exception
+	@Test
+	public void saveException6() throws Exception{
+		try {
+			QaTreeDto t = new QaTreeDto("testSave","SRM","N",null);
+			@SuppressWarnings("unused")
+			QaTreeDto d = qaTreeService.save(t);
+			fail("expected a Exception to be throw");
+		}catch(Exception e) {
+			assertThat(e.getMessage(),is("父节点不存在！"));
 		}
 	}
 	
@@ -221,9 +273,7 @@ public class QaTreeServiceImplTest {
 	@Test
 	public void update() throws Exception{
 		//save a new data first
-		QaTreeDto t = new QaTreeDto();
-		t.setTitle("testUpdate");
-		t.setIsPage("Y");
+		QaTreeDto t = new QaTreeDto("testUpdate","SRM","N",1);
 		QaTreeDto d = qaTreeService.save(t);
 		//modify the data and update
 		d.setTitle("testUpdate123");
@@ -239,8 +289,8 @@ public class QaTreeServiceImplTest {
 		try {
 			@SuppressWarnings("unused")
 			QaTreeDto d = qaTreeService.update(null);
-			fail("expected a QaTreeException to be throw");
-		}catch(QaTreeException e) {
+			fail("expected a Exception to be throw");
+		}catch(Exception e) {
 			assertThat(e.getMessage(),is("传入对象为空！"));
 		}	
 	}
@@ -254,8 +304,8 @@ public class QaTreeServiceImplTest {
 			t.setIsPage("Y");
 			@SuppressWarnings("unused")
 			QaTreeDto d = qaTreeService.update(t);
-			fail("expected a QaTreeException to be throw");
-		}catch(QaTreeException e) {
+			fail("expected a Exception to be throw");
+		}catch(Exception e) {
 			assertThat(e.getMessage(),is("传入对象无主键！"));
 		}	
 	}
@@ -268,8 +318,8 @@ public class QaTreeServiceImplTest {
 			d.setIsPage("Y");
 			@SuppressWarnings("unused")
 			QaTreeDto d2 = qaTreeService.update(d);
-			fail("expected a QaTreeException to be throw");
-		}catch(QaTreeException e) {
+			fail("expected a Exception to be throw");
+		}catch(Exception e) {
 			assertThat(e.getMessage(),is("该节点含有子集，不允许设为知识页！"));
 		}	
 	}
@@ -284,8 +334,8 @@ public class QaTreeServiceImplTest {
 			t.setTreeId(-11);
 			@SuppressWarnings("unused")
 			QaTreeDto d2 = qaTreeService.update(t);
-			fail("expected a QaTreeException to be throw");
-		}catch(QaTreeException e) {
+			fail("expected a Exception to be throw");
+		}catch(Exception e) {
 			assertThat(e.getMessage(),is("传入对象在数据库中不存在，更新失败！"));
 		}	
 	}
@@ -294,9 +344,7 @@ public class QaTreeServiceImplTest {
 	@Test
 	public void deleteById() throws Exception{
 		//insert first
-		QaTreeDto t = new QaTreeDto();
-		t.setTitle("testDelete");
-		t.setIsPage("Y");
+		QaTreeDto t = new QaTreeDto("testDelete","SRM","N",1);
 		QaTreeDto d = qaTreeService.save(t);
 		//delete
 		qaTreeService.deleteById(d.getTreeId());
@@ -310,8 +358,8 @@ public class QaTreeServiceImplTest {
 	public void deleteByIdException() throws Exception{
 		try {
 			qaTreeService.deleteById(null);
-			fail("expected a QaTreeException to be throw");
-		}catch(QaTreeException e) {
+			fail("expected a Exception to be throw");
+		}catch(Exception e) {
 			assertThat(e.getMessage(),is("id is null,delete fail"));
 		}	
 	}
@@ -322,8 +370,8 @@ public class QaTreeServiceImplTest {
 	public void deleteByIdException2() throws Exception{
 		try {
 			qaTreeService.deleteById(276);
-			fail("expected a QaTreeException to be throw");
-		}catch(QaTreeException e) {
+			fail("expected a Exception to be throw");
+		}catch(Exception e) {
 			assertThat(e.getMessage(),is("该节点含有子集，不允许删除！"));
 		}	
 	}
@@ -333,8 +381,8 @@ public class QaTreeServiceImplTest {
 	public void deleteByIdException3() throws Exception{
 		try {
 			qaTreeService.deleteById(-276);
-			fail("expected a QaTreeException to be throw");
-		}catch(QaTreeException e) {
+			fail("expected a Exception to be throw");
+		}catch(Exception e) {
 			assertThat(e.getMessage(),is("要删除的主键在数据库里不存在，删除失败！"));
 		}	
 	}
@@ -348,11 +396,27 @@ public class QaTreeServiceImplTest {
 			assertEquals(new Integer(1),t.getParentId());
 		}
 	}
-	
 	//test find with children by title ,not exist
 	@Test
 	public void findChildrenByTitle2() throws Exception{
 		QaTreeDto d = qaTreeService.findChildrenByTitle("SRM123123");
+		assertNull(d);
+	}
+	//test find with children by title ,exist
+	@Test
+	public void findChildrenByTitle3() throws Exception{
+		List<String> l = new ArrayList<String>();
+		l.add("SRM");
+		l.add("PAY");
+		QaTreeDto d = qaTreeService.findChildrenByTitle("支付系统",l);
+		assertTrue(d.getChild().size()>0);
+	}
+	//test find with children by title ,exist
+	@Test
+	public void findChildrenByTitle4() throws Exception{
+		List<String> l = new ArrayList<String>();
+		l.add("PAY");
+		QaTreeDto d = qaTreeService.findChildrenByTitle("SRM",l);
 		assertNull(d);
 	}
 	
@@ -361,8 +425,8 @@ public class QaTreeServiceImplTest {
 	public void deleteByIdExceptionException() throws Exception{
 		try {
 			qaTreeService.findChildrenByTitle(null);
-			fail("expected a QaTreeException to be throw");
-		}catch(QaTreeException e) {
+			fail("expected a Exception to be throw");
+		}catch(Exception e) {
 			assertThat(e.getMessage(),is("title is null"));
 		}	
 	}
@@ -383,43 +447,43 @@ public class QaTreeServiceImplTest {
 	
 	//测试输入关键字为空字符串报错
 	@Test
-	public void findByTitleOrKeywordException() throws QaTreeException{
+	public void findByTitleOrKeywordException() throws Exception{
 		try {
 			@SuppressWarnings("unused")
 			List<QaTreeSimpleDto> l = qaTreeService.findByTitleOrKeyword("");
-			fail("expected a QaTreeException to be throw");
-		}catch(QaTreeException e) {
+			fail("expected a Exception to be throw");
+		}catch(Exception e) {
 			assertThat(e.getMessage(),is("传入关键字为空！"));
 		}
 	}
 	
 	//测试输入关键字为空格报错
 	@Test
-	public void findByTitleOrKeywordException2() throws QaTreeException{
+	public void findByTitleOrKeywordException2() throws Exception{
 		try {
 			@SuppressWarnings("unused")
 			List<QaTreeSimpleDto> l = qaTreeService.findByTitleOrKeyword(" ");
-			fail("expected a QaTreeException to be throw");
-		}catch(QaTreeException e) {
+			fail("expected a Exception to be throw");
+		}catch(Exception e) {
 			assertThat(e.getMessage(),is("传入关键字为空！"));
 		}
 	}
 	
 	//测试输入关键字为null报错
 	@Test
-	public void findByTitleOrKeywordException3() throws QaTreeException{
+	public void findByTitleOrKeywordException3() throws Exception{
 		try {
 			@SuppressWarnings("unused")
 			List<QaTreeSimpleDto> l = qaTreeService.findByTitleOrKeyword(" ");
-			fail("expected a QaTreeException to be throw");
-		}catch(QaTreeException e) {
+			fail("expected a Exception to be throw");
+		}catch(Exception e) {
 			assertThat(e.getMessage(),is("传入关键字为空！"));
 		}
 	}
 	
 	//test find paged by keyword,exist
 	@Test
-	public void findPagedByTitleOrKeyword() throws QaTreeException{
+	public void findPagedByTitleOrKeyword() throws Exception{
 		QaPagedDto<QaTreeSimpleDto> p = qaTreeService.findPagedByTitleOrKeyword("供应商关系管理系统",0,10);
 		assertTrue(p.getList().size()>=1);
 		assertTrue(p.getTotalElements()>=1);
@@ -429,85 +493,105 @@ public class QaTreeServiceImplTest {
 	
 	//test find paged by keyword,not exist
 	@Test
-	public void findPagedByTitleOrKeyword2() throws QaTreeException{
+	public void findPagedByTitleOrKeyword2() throws Exception{
 		QaPagedDto<QaTreeSimpleDto> p = qaTreeService.findPagedByTitleOrKeyword("供应商关系管理系统123123",0,10);
 		assertTrue(p.getList().size()==0);
 		assertTrue(p.getTotalElements()==0);
 	}
 	
+	@Test
+	public void findPagedByTitleOrKeyword3() throws Exception{
+		List<String> domain = new ArrayList<String>();
+		domain.add("SRM");
+		QaPagedDto<QaTreeSimpleDto> p = qaTreeService.findPagedByTitleOrKeyword("供应商关系管理系统",0,10,domain);
+		assertTrue(p.getList().size()>=1);
+		assertTrue(p.getTotalElements()>=1);
+	}
+	
+	@Test
+	public void findPagedByTitleOrKeyword4() throws Exception{
+		List<String> domain = new ArrayList<String>();
+		domain.add("PAY");		
+		QaPagedDto<QaTreeSimpleDto> p = qaTreeService.findPagedByTitleOrKeyword("供应商关系管理系统",0,10,domain);
+		assertTrue(p.getList().size()==0);
+	}
+	
 	//测试输入关键字为null报错
 	@Test
-	public void findPagedByTitleOrKeywordException() throws QaTreeException{
+	public void findPagedByTitleOrKeywordException() throws Exception{
 		try {
 			@SuppressWarnings("unused")
 			QaPagedDto<QaTreeSimpleDto> p  = qaTreeService.findPagedByTitleOrKeyword(" ",0,10);
-			fail("expected a QaTreeException to be throw");
-		}catch(QaTreeException e) {
+			fail("expected a Exception to be throw");
+		}catch(Exception e) {
 			assertThat(e.getMessage(),is("传入关键字为空！"));
 		}
 	}
 	
 	//测试输入负数
 	@Test
-	public void findPagedByTitleOrKeywordException2() throws QaTreeException{
+	public void findPagedByTitleOrKeywordException2() throws Exception{
 		try {
 			@SuppressWarnings("unused")
 			QaPagedDto<QaTreeSimpleDto> p  = qaTreeService.findPagedByTitleOrKeyword("供应商关系管理系统",-1,10);
-			fail("expected a QaTreeException to be throw");
-		}catch(QaTreeException e) {
+			fail("expected a Exception to be throw");
+		}catch(Exception e) {
 			assertThat(e.getMessage(),is("当前页数不能小于0！"));
 		}
 	}
 	
 	//测试输入负数
 	@Test
-	public void findPagedByTitleOrKeywordException3() throws QaTreeException{
+	public void findPagedByTitleOrKeywordException3() throws Exception{
 		try {
 			@SuppressWarnings("unused")
 			QaPagedDto<QaTreeSimpleDto> p  = qaTreeService.findPagedByTitleOrKeyword("供应商关系管理系统",0,-10);
-			fail("expected a QaTreeException to be throw");
-		}catch(QaTreeException e) {
+			fail("expected a Exception to be throw");
+		}catch(Exception e) {
 			assertThat(e.getMessage(),is("每页条目数不能小于1！"));
 		}
 	}
-		
+	
+	@Test
+	public void findPagedByTitleOrKeywordException4() throws Exception{
+		try {
+			List<String> domain = new ArrayList<String>();
+			@SuppressWarnings("unused")
+			QaPagedDto<QaTreeSimpleDto> p = qaTreeService.findPagedByTitleOrKeyword("供应商关系管理系统",0,10,domain);
+			fail("expected a Exception to be throwed");
+		}catch(Exception e) {
+			assertThat(e.getMessage(),is("传入域为空！"));
+		}
+	}
 	
 	//test find top rank ,success
 	@Test
-	public void findTopRank()throws QaTreeException{
+	public void findTopRank()throws Exception{
 		QaPagedDto<QaTreeSimpleDto> p = qaTreeService.findTopRank(50);
 		assertEquals(50, p.getList().size());
+		List<String> l = new ArrayList<String>();
+		l.add("SRM");
+		p = qaTreeService.findTopRank(51,l);
+		assertEquals(51, p.getList().size());
 	}
 	
 	//test find top rank ,null
 	@Test
-	public void findTopRank2()throws QaTreeException{
+	public void findTopRank2()throws Exception{
 		QaPagedDto<QaTreeSimpleDto> p = qaTreeService.findTopRank(null);
 		assertEquals(100, p.getList().size());
 	}
 	
 	@Test
-	public void searchRecord()throws QaTreeException{
-		QaTreeDto t = new QaTreeDto();
-		t.setTitle("testSearchRecord");
-		t.setIsPage("Y");
-		t.setRank(0);
-		t = qaTreeService.save(t);
+	public void findTopRankException() throws Exception{
 		try {
-			qaTreeService.searchRecord("testSearchRecord");
-			//because searchRecord is a async function,so i have to sleep 1000MS
-			Thread.sleep(1000);
-			t = qaTreeService.findByTitle("testSearchRecord");
-			assertEquals(new Integer(1),t.getRank());	
-		}catch(Exception e) {
-			
-		}finally {
-			qaTreeService.deleteById(t.getTreeId());
+			@SuppressWarnings("unused")
+			QaPagedDto<QaTreeSimpleDto> p = qaTreeService.findTopRank(50,null);
+			fail("a QaTreeException excepted to be throwed");
+		} catch (NullPointerException e) {
+			assertThat(e.getMessage(),is("传入域为空"));
 		}
 	}
 	
-	@Test
-	public void searchRecord2()throws QaTreeException{
-		qaTreeService.searchRecord(null);
-	}
+	
 }

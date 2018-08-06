@@ -13,4 +13,5 @@ import java.util.List;
 public interface BaseService<T> {
 	
 	public <D> List<D> pojoToDto(Class<D> dClass,Iterable<T> origList) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException, InstantiationException;
+	public void checkNull(Object obj,String message) throws NullPointerException;
 }

@@ -38,6 +38,23 @@ public class QaTreeDto implements Serializable{
 	private QaPageDto qaPage; //该节点的知识页
 	private Set<QaTreeSimpleDto> child; //该节点的子集
 	
+	public QaTreeDto() {}
+	
+	public QaTreeDto(String title,String domain,String isPage,Integer parentId) {
+		this.title = title;
+		this.domain = domain;
+		this.isPage = isPage;
+		this.parentId = parentId;
+	}
+	
+	public QaTreeDto(Integer treeId,String title,String domain,String isPage,Integer parentId) {
+		this.treeId = treeId;
+		this.title = title;
+		this.domain = domain;
+		this.isPage = isPage;
+		this.parentId = parentId;
+	}
+	
 	public Integer getTreeId() {
 		return treeId;
 	}

@@ -46,16 +46,23 @@ public interface QaTreeService extends BaseService<QaTree>{
 	 * @param parentId
 	 * @return
 	 */
-	public List<QaTreeSimpleDto> findByParentId(Integer parentId) throws QaTreeException;
+	public List<QaTreeSimpleDto> findByParentId(Integer parentId) throws QaTreeException,NullPointerException;
 	
 	/**
 	 * 根据title精确查询节点
+	 * @param title 标题
+	 * @param domain 域
+	 * @param strict 是否严格
 	 * @author huangyue
 	 * @date 2018年5月23日 上午9:58:06
 	 * @param title
 	 * @return
 	 */
-	public QaTreeDto findByTitle(String title) throws QaTreeException;
+	public QaTreeDto findByTitle(String title) throws QaTreeException,NullPointerException;
+	
+	public QaTreeDto findByTitle(String title,List<String> domain) throws QaTreeException,NullPointerException;
+	
+	public QaTreeDto findByTitle(String title,List<String> domain,Boolean strict) throws QaTreeException,NullPointerException;
 	
 	/**
 	 * 根据title模糊查询节点
@@ -64,7 +71,7 @@ public interface QaTreeService extends BaseService<QaTree>{
 	 * @param title
 	 * @return
 	 */
-	public QaPagedDto<QaTreeSimpleDto> findPagedByTitleLike(String title,Integer page,Integer size) throws QaTreeException;
+	public QaPagedDto<QaTreeSimpleDto> findPagedByTitleLike(String title,Integer page,Integer size) throws QaTreeException,NullPointerException;
 	
 	/**
 	 * 根据id查找节点
@@ -74,7 +81,7 @@ public interface QaTreeService extends BaseService<QaTree>{
 	 * @return
 	 * @throws QaTreeException
 	 */
-	public QaTreeDto findById(Integer Id) throws QaTreeException;
+	public QaTreeDto findById(Integer Id) throws QaTreeException,NullPointerException;
 	
 	/**
 	 * 保存
@@ -84,7 +91,7 @@ public interface QaTreeService extends BaseService<QaTree>{
 	 * @return
 	 * @throws QaTreeException
 	 */
-	public QaTreeDto save(QaTreeDto d) throws QaTreeException;
+	public QaTreeDto save(QaTreeDto d) throws QaTreeException,NullPointerException;
 	
 	/**
 	 * 更新
@@ -94,7 +101,7 @@ public interface QaTreeService extends BaseService<QaTree>{
 	 * @return
 	 * @throws QaTreeException
 	 */
-	public QaTreeDto update(QaTreeDto d) throws QaTreeException;
+	public QaTreeDto update(QaTreeDto d) throws QaTreeException,NullPointerException;
 	
 	/**
 	 * 根据id删除
@@ -103,7 +110,7 @@ public interface QaTreeService extends BaseService<QaTree>{
 	 * @param id
 	 * @throws QaTreeException
 	 */
-	public void deleteById(Integer id) throws QaTreeException;
+	public void deleteById(Integer id) throws QaTreeException,NullPointerException;
 	
 	/**
 	 * 根据title查找该节点及其子节点
@@ -113,7 +120,11 @@ public interface QaTreeService extends BaseService<QaTree>{
 	 * @return
 	 * @throws QaTreeException
 	 */
-	public QaTreeDto findChildrenByTitle(String title) throws QaTreeException;
+	public QaTreeDto findChildrenByTitle(String title) throws QaTreeException,NullPointerException;
+	
+	public QaTreeDto findChildrenByTitle(String title,List<String> domain) throws QaTreeException,NullPointerException;
+	
+	public QaTreeDto findChildrenByTitle(String title,List<String> domain,Boolean strict) throws QaTreeException,NullPointerException;
 	
 	/**
 	 * 根据keyword查找节点
@@ -123,31 +134,40 @@ public interface QaTreeService extends BaseService<QaTree>{
 	 * @Date 2018年7月17日
 	 * @author huangyue
 	 */
-	public List<QaTreeSimpleDto> findByTitleOrKeyword(String keyword) throws QaTreeException;
+	public List<QaTreeSimpleDto> findByTitleOrKeyword(String keyword) throws QaTreeException,NullPointerException;
 	
 	/**
 	 * 根据keyword查找分页的节点
-	 * @param keyword
+	 * @param keyword 查询条件
+	 * @param page 当前页
+	 * @param size 每页大小
+	 * @param domain 域
+	 * @param strict 是否严格模式
 	 * @return
 	 * @throws QaTreeException
 	 * @Date 2018年7月19日
 	 * @author huangyue
 	 */
-	public QaPagedDto<QaTreeSimpleDto> findPagedByTitleOrKeyword(String keyword,Integer page,Integer size) throws QaTreeException;
+	public QaPagedDto<QaTreeSimpleDto> findPagedByTitleOrKeyword(String keyword,Integer page,Integer size) throws QaTreeException,NullPointerException;
+	
+	public QaPagedDto<QaTreeSimpleDto> findPagedByTitleOrKeyword(String keyword,Integer page,Integer size,List<String> domain) throws QaTreeException,NullPointerException;
+	
+	public QaPagedDto<QaTreeSimpleDto> findPagedByTitleOrKeyword(String keyword,Integer page,Integer size,List<String> domain,Boolean strict) throws QaTreeException,NullPointerException;
 	
 	/**
 	 * 以rank值排序查找指定数量的节点
 	 * @author huangyue
-	 * @date 2018年6月6日 上午9:25:28
+	 * @param size size of top rank
+	 * @param domain
+	 * @param strict
 	 * @return
 	 * @throws QaTreeException
 	 */
-	public QaPagedDto<QaTreeSimpleDto> findTopRank(Integer size) throws QaTreeException;
+	public QaPagedDto<QaTreeSimpleDto> findTopRank(Integer size) throws QaTreeException,NullPointerException;
 	
-	/**
-	 * 记录用户查询情况
-	 * @param title
-	 * @throws QaTreeException
-	 */
-	public void searchRecord(String title)throws QaTreeException;
+	public QaPagedDto<QaTreeSimpleDto> findTopRank(Integer size,List<String> domain) throws QaTreeException,NullPointerException;
+	
+	public QaPagedDto<QaTreeSimpleDto> findTopRank(Integer size,List<String> domain,Boolean strict) throws QaTreeException,NullPointerException;
+	
+	
 }
