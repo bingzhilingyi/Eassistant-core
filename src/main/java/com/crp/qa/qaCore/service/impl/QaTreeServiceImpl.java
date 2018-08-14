@@ -14,6 +14,7 @@ import java.util.Set;
 import javax.annotation.Resource;
 
 import org.dozer.MappingException;
+import org.springframework.aop.ThrowsAdvice;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -430,6 +431,35 @@ public class QaTreeServiceImpl extends BaseServiceImpl<QaTree> implements QaTree
 		}
 	}
 
-	
-	
+	@Override
+	public QaTreeDto evaluate(Integer id,Boolean isLike) throws QaTreeException,NullPointerException {
+		checkNull(id,"传入知识页id为null！");
+		isLike = isLike==null?false:isLike;
+		QaTree pojo = null;
+		synchronized (id.toString()) {
+			Optional<QaTree> dto = qaTreeRepository.findById(id);
+			if(dto.isPresent()) {
+				QaTree t = dto.get();
+				int now = 0;
+				if(isLike) {
+					now = t.getLike()==null?0:t.getLike();
+					t.setLike(now+1);
+				}else {
+					now = t.getDislike()==null?0:t.getDislike();
+					t.setDislike(now+1);
+				}
+				pojo = qaTreeRepository.saveAndFlush(t);
+			}
+		}
+		if(pojo!=null) {
+			try {
+				QaTreeDto dto = new QaTreeDto();
+				mapper.map(pojo, dto);
+				return dto;
+			}catch(MappingException e) {
+				throw new QaTreeException("pojo 转 dto 失败",e);
+			}
+		}
+		return null;
+	}	
 }

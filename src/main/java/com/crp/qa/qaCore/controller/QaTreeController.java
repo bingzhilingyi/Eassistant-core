@@ -325,6 +325,27 @@ public class QaTreeController extends BaseController{
 		return dto;
 	}
 	
+	/**
+	 * 点赞或踩
+	 * @author huangyue
+	 * @date 2018年5月29日 上午10:17:38
+	 * @param token
+	 * @param node
+	 * @return
+	 */
+	@PostMapping(path="/evaluate")
+	public QaBaseTransfer evaluate(
+			@RequestParam(value="id") Integer id,
+			@RequestParam(value="isLike") Boolean isLike){
+		QaBaseTransfer dto = new QaBaseTransfer("success","保存成功！");
+		try {
+			QaTreeDto d = qaTreeService.evaluate(id, isLike);
+			dto.setContent(d);
+		}catch (Exception e) {
+			returnError(e,dto);
+		}
+		return dto;
+	}
 	
 	
 	private List<String> stringToList(String str)throws QaTreeException{

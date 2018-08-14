@@ -48,6 +48,8 @@ public class QaTree implements Serializable{
 	private String label4;
 	private String label5;
 	private Integer pageId;
+	private Integer like;
+	private Integer dislike;
 	
 	
 	private QaPage qaPage;
@@ -195,6 +197,20 @@ public class QaTree implements Serializable{
 	}
 	public void setLabel5(String label5) {
 		this.label5 = label5;
+	}
+	@Column(name="_like")
+	public Integer getLike() {
+		return like;
+	}
+	public void setLike(Integer like) {
+		this.like = like;
+	}
+	@Column(name="dislike")
+	public Integer getDislike() {
+		return dislike;
+	}
+	public void setDislike(Integer dislike) {
+		this.dislike = dislike;
 	}
 	
 	

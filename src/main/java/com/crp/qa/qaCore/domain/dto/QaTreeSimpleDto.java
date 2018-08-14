@@ -35,6 +35,8 @@ public class QaTreeSimpleDto implements Serializable{
 	private String label3;
 	private String label4;
 	private String label5;
+	private Integer like;
+	private Integer dislike;
 	public Integer getTreeId() {
 		return treeId;
 	}
@@ -130,6 +132,18 @@ public class QaTreeSimpleDto implements Serializable{
 	}
 	public void setLabel5(String label5) {
 		this.label5 = label5;
+	}
+	public Integer getLike() {
+		return like;
+	}
+	public void setLike(Integer like) {
+		this.like = like;
+	}
+	public Integer getDislike() {
+		return dislike;
+	}
+	public void setDislike(Integer dislike) {
+		this.dislike = dislike;
 	}
 
 	

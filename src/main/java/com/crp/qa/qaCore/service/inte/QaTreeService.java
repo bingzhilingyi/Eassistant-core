@@ -169,5 +169,12 @@ public interface QaTreeService extends BaseService<QaTree>{
 	
 	public QaPagedDto<QaTreeSimpleDto> findTopRank(Integer size,List<String> domain,Boolean strict) throws QaTreeException,NullPointerException;
 	
-	
+	/**
+	 * 设置评价
+	 * @param isLike
+	 * @throws QaTreeException
+	 * @Date 2018年8月13日
+	 * @author huangyue
+	 */
+	public QaTreeDto evaluate(Integer id,Boolean isLike)throws QaTreeException,NullPointerException;
 }

@@ -35,6 +35,8 @@ public class QaTreeDto implements Serializable{
 	private String label4;
 	private String label5;
 	private Integer pageId;
+	private Integer like;
+	private Integer dislike;
 	private QaPageDto qaPage; //该节点的知识页
 	private Set<QaTreeSimpleDto> child; //该节点的子集
 	
@@ -163,6 +165,22 @@ public class QaTreeDto implements Serializable{
 	}
 	public void setLabel5(String label5) {
 		this.label5 = label5;
+	}
+
+	public Integer getLike() {
+		return like;
+	}
+
+	public void setLike(Integer like) {
+		this.like = like;
+	}
+
+	public Integer getDislike() {
+		return dislike;
+	}
+
+	public void setDislike(Integer dislike) {
+		this.dislike = dislike;
 	}
 	
 	
