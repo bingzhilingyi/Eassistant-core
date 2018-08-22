@@ -66,8 +66,8 @@ public class QaCountSaver implements Runnable{
 			}
 			
 			try {
-				//一小时执行一次
-				Thread.sleep(3600000);
+				//6分钟更新一次
+				Thread.sleep(360000);
 			} catch (InterruptedException e) {
 				LOGGER.error("访问计数线程被意外唤醒！",e);
 			}

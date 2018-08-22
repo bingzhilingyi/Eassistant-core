@@ -1,5 +1,7 @@
 package com.crp.qa.qaCore.domain.pojo;
 
+import java.util.Date;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -14,6 +16,7 @@ public class QaSearchCount {
 	private Integer countId;
 	private String countDate;
 	private Integer countNumber;
+	private Date lastUpdateDate;
 	
 	@Id
 	@GeneratedValue(strategy=GenerationType.AUTO)
@@ -37,6 +40,13 @@ public class QaSearchCount {
 	}
 	public void setCountNumber(Integer countNumber) {
 		this.countNumber = countNumber;
+	}
+	@Column(name="last_update_date")
+	public Date getLastUpdateDate() {
+		return lastUpdateDate;
+	}
+	public void setLastUpdateDate(Date lastUpdateDate) {
+		this.lastUpdateDate = lastUpdateDate;
 	}
 	
 	

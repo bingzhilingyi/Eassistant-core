@@ -1,6 +1,7 @@
 package com.crp.qa.qaCore.domain.dto;
 
 import java.io.Serializable;
+import java.util.Date;
 
 public class QaSearchCountDto implements Serializable{
 
@@ -11,6 +12,7 @@ public class QaSearchCountDto implements Serializable{
 	private Integer countId;
 	private String countDate;
 	private Integer countNumber;
+	private Date lastUpdateDate;
 	
 	public QaSearchCountDto() {
 		
@@ -38,6 +40,14 @@ public class QaSearchCountDto implements Serializable{
 	}
 	public void setCountNumber(Integer countNumber) {
 		this.countNumber = countNumber;
+	}
+
+	public Date getLastUpdateDate() {
+		return lastUpdateDate;
+	}
+
+	public void setLastUpdateDate(Date lastUpdateDate) {
+		this.lastUpdateDate = lastUpdateDate;
 	}
 	
 	
