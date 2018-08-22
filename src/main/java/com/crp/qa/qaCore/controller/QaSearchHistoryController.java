@@ -50,10 +50,12 @@ public class QaSearchHistoryController extends BaseController{
 	 * @author huangyue
 	 */
 	@PostMapping(path="/searchRecord")
-	public QaBaseTransfer searchRecord(@RequestParam(value="title") String title) {
+	public QaBaseTransfer searchRecord(
+			@RequestParam(value="title") String title,
+			@RequestParam(value="noResult") Boolean noResult) {
 		QaBaseTransfer dto = new QaBaseTransfer("success","记录成功！");
 		try {
-			qaSearchHistoryService.searchRecord(title);
+			qaSearchHistoryService.searchRecord(title,noResult);
 		}catch (Exception e) {
 			returnError(e,dto);
 		}

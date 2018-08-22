@@ -10,6 +10,7 @@ import javax.annotation.Resource;
 
 import org.dozer.MappingException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -18,7 +19,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.crp.qa.qaCore.domain.dto.QaSearchHistoryDto;
+import com.crp.qa.qaCore.domain.dto.QaSearchNoResultDto;
 import com.crp.qa.qaCore.domain.pojo.QaSearchHistory;
+import com.crp.qa.qaCore.domain.pojo.QaSearchNoResult;
 import com.crp.qa.qaCore.domain.pojo.QaTree;
 import com.crp.qa.qaCore.repository.QaSearchHistoryRepository;
 import com.crp.qa.qaCore.repository.QaTreeRepository;
@@ -26,7 +29,9 @@ import com.crp.qa.qaCore.service.inte.QaSearchHistoryService;
 import com.crp.qa.qaCore.service.inte.QaTreeService;
 import com.crp.qa.qaCore.util.counter.QaCounter;
 import com.crp.qa.qaCore.util.exception.QaSearchHistoryException;
+import com.crp.qa.qaCore.util.exception.QaSearchNoResultException;
 import com.crp.qa.qaCore.util.exception.QaTreeException;
+import com.crp.qa.qaCore.util.transfer.QaPagedDto;
 
 import io.netty.util.internal.StringUtil;
 
@@ -69,31 +74,24 @@ public class QaSearchHistoryServiceImpl extends BaseServiceImpl<QaSearchHistory>
 	}
 
 	@Override
-	public QaSearchHistoryDto setHistory(String title) throws QaSearchHistoryException {	
-		if(StringUtil.isNullOrEmpty(title)) {
-			throw new QaSearchHistoryException("传入title为空！");
-		}
-		String title2 =  title.trim();
+	public QaSearchHistoryDto setHistory(String title,Boolean isNoResult,Boolean isPageTitle) throws QaSearchHistoryException {
+		checkNull(title,"传入title为空！");
+		isNoResult = isNoResult==null?false:isNoResult;
+		isPageTitle = isPageTitle==null?false:isPageTitle;
+		
+		//如果title查不到，那么就添加一条记录
+		QaSearchHistory d = new QaSearchHistory();
+		d.setHistoryContent(title.trim());
+		d.setIsNoResult(isNoResult?"Y":"N");
+		d.setRank(1);
+		d.setIsPageTitle(isPageTitle?"Y":"N");
+		d.setCreationDate(new Date());
+		d.setLastUpdateDate(new Date());
+		
 		//定义返回值
 		QaSearchHistoryDto rt = new QaSearchHistoryDto();
-		//先查询一次该title
-		QaSearchHistory history = qaSearchHistoryRepository.findByHistoryContent(title2);
-		//如果title不为空，则把该title的rank+1
-		if(history!=null) {
-			history.setRank(history.getRank()+1);
-			history.setLastUpdateDate(new Date());
-			history = qaSearchHistoryRepository.saveAndFlush(history);
-			mapper.map(history, rt);
-		}else {
-			//如果title查不到，那么就添加一条记录
-			QaSearchHistory d = new QaSearchHistory();
-			d.setHistoryContent(title2);
-			d.setRank(1);
-			d.setCreationDate(new Date());
-			d.setLastUpdateDate(new Date());
-			d = qaSearchHistoryRepository.save(d);
-			mapper.map(d, rt);
-		}
+		d = qaSearchHistoryRepository.save(d);
+		mapper.map(d, rt);
 		return rt;
 	}
 
@@ -107,7 +105,6 @@ public class QaSearchHistoryServiceImpl extends BaseServiceImpl<QaSearchHistory>
 		qaSearchHistoryRepository.deleteById(id);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public List<QaSearchHistoryDto> findTopHistory(Integer rank) throws QaSearchHistoryException {
 		rank = rank==null?10:rank;
@@ -131,30 +128,36 @@ public class QaSearchHistoryServiceImpl extends BaseServiceImpl<QaSearchHistory>
 
 	@Override
 	@Async
-	public  void searchRecord(String title) throws QaTreeException {
+	public  void searchRecord(String title,Boolean noResult) throws QaTreeException {
 		title = title == null?"":title.trim();
-		//判断标题是否为空
+		//标题为空时不记录
 		if(title.equals("")) {
 			return;
 		}
+		//noResult默认为false
+		noResult = noResult==null?false:noResult;
 		//查询计数+1
 		QaCounter counter = QaCounter.getInstance();
 		counter.count();
-		//去层级树里查该关键字，如果存在就给rank+1
-		synchronized("searchRecord") {
+		
+		synchronized(QaSearchHistoryServiceImpl.class) {
+			boolean pageTitle = false; //是否是知识页的标题
+			//去层级树里查该关键字，如果存在就给rank+1
 			QaTree t = qaTreeRepository.findByTitle(title);
 			if(t!=null) {
 				Integer nowCount = t.getRank()==null?0:t.getRank();
 				t.setRank(nowCount+1);
 				qaTreeRepository.saveAndFlush(t);
-			}else {
-				//如果层级树里没有该关键字，就查记录表，如果有，给记录表+1，没有，则往记录表里加一条记录		
-				try {
-					setHistory(title);
-				} catch (QaSearchHistoryException e) {
-					throw new QaTreeException("记录查询历史报错了",e);
-				}
+				pageTitle = true;
+			}
+			//往查询记录表里加一条记录
+			try {
+				setHistory(title,noResult,pageTitle);
+			} catch (QaSearchHistoryException e) {
+				throw new QaTreeException("记录查询历史报错了",e);
 			}
 		}	
 	}
+
+	
 }

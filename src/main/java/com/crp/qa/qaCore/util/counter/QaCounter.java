@@ -124,16 +124,16 @@ public class QaCounter {
 		try {
 			QaSearchCountDto count = qaSearchCountService.findByDate(date);
 			if(count!=null) {
-				//如果中途重启过应用，计数器会清空，可能导致计数器小于数据库里的值，这时就把数据库里的数据作为原始数据
-				//如果计数器大于数据库的值，就忽略之前丢失的数据
-				//当然可以用redis作为临时缓存，这样比较精确，这里没有使用
-				if(count.getCountNumber()<num) {
-					num += count.getCountNumber();
+				//如果数据库里已有的数据比现在的数据大，那么就不更新
+				if(count.getCountNumber()!=null && count.getCountNumber()>num) {
+					return;
 				}
 				count.setCountNumber(num);
+				count.setLastUpdateDate(new Date()); //设置更新时间
 				qaSearchCountService.update(count);
 			}else {
 				count = new QaSearchCountDto(sdf.format(date),num);
+				count.setLastUpdateDate(new Date()); //设置更新时间
 				qaSearchCountService.save(count);
 			}
 		} catch (NullPointerException | QaSearchCountException e) {

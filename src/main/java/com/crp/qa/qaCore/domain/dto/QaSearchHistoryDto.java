@@ -26,6 +26,18 @@ public class QaSearchHistoryDto implements Serializable{
 	private String attribute8;
 	private String attribute9;
 	private String attribute10;
+	private String isNoResult;
+	private String isPageTitle;
+	private String creationDateStr;
+	
+	public QaSearchHistoryDto() {}
+	
+	public QaSearchHistoryDto(String historyContent,String isNoResult,String isPageTitle) {
+		this.historyContent = historyContent;
+		this.isNoResult = isNoResult;
+		this.isPageTitle = isPageTitle;
+	}
+	
 	public Integer getHistoryId() {
 		return historyId;
 	}
@@ -127,6 +139,26 @@ public class QaSearchHistoryDto implements Serializable{
 	}
 	public void setAttribute10(String attribute10) {
 		this.attribute10 = attribute10;
+	}
+	public String getIsNoResult() {
+		return isNoResult;
+	}
+	public void setIsNoResult(String isNoResult) {
+		this.isNoResult = isNoResult;
+	}
+	public String getIsPageTitle() {
+		return isPageTitle;
+	}
+	public void setIsPageTitle(String isPageTitle) {
+		this.isPageTitle = isPageTitle;
+	}
+
+	public String getCreationDateStr() {
+		return creationDateStr;
+	}
+
+	public void setCreationDateStr(String creationDateStr) {
+		this.creationDateStr = creationDateStr;
 	}
 	
 	

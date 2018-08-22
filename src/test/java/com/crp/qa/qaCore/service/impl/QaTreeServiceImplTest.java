@@ -221,7 +221,7 @@ public class QaTreeServiceImplTest {
 	@Test
 	public void saveException3() throws Exception{
 		try {
-			QaTreeDto t = new QaTreeDto("供应商","SRM","N",1);
+			QaTreeDto t = new QaTreeDto("SRM","SRM","N",1);
 			@SuppressWarnings("unused")
 			QaTreeDto d = qaTreeService.save(t);
 			fail("expected a Exception to be throw");

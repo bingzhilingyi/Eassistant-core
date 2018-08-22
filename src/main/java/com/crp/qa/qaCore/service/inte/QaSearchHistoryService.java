@@ -1,10 +1,14 @@
 package com.crp.qa.qaCore.service.inte;
 
+import java.util.Date;
 import java.util.List;
 
 import com.crp.qa.qaCore.domain.dto.QaSearchHistoryDto;
+import com.crp.qa.qaCore.domain.dto.QaSearchNoResultDto;
 import com.crp.qa.qaCore.util.exception.QaSearchHistoryException;
+import com.crp.qa.qaCore.util.exception.QaSearchNoResultException;
 import com.crp.qa.qaCore.util.exception.QaTreeException;
+import com.crp.qa.qaCore.util.transfer.QaPagedDto;
 
 /**
  * 查询历史服务
@@ -30,7 +34,7 @@ public interface QaSearchHistoryService {
 	 * @Date 2018年6月27日
 	 * @author huangyue
 	 */
-	public QaSearchHistoryDto setHistory(String title) throws QaSearchHistoryException;
+	public QaSearchHistoryDto setHistory(String title,Boolean isNoResult,Boolean isPageTitle) throws QaSearchHistoryException;
 	
 	/**
 	 * delete history by id
@@ -56,5 +60,6 @@ public interface QaSearchHistoryService {
 	 * @param title
 	 * @throws QaTreeException
 	 */
-	public void searchRecord(String title)throws QaTreeException;
+	public void searchRecord(String title,Boolean noResult)throws QaTreeException;
+	
 }

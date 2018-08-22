@@ -61,39 +61,6 @@ public class QaSearchHistoryImplTest {
 	}
 	
 	@Test
-	public void setHistory()throws Exception {
-		//create first
-		QaSearchHistoryDto t = qaSearchHistoryService.setHistory("test setHistory");
-		QaSearchHistoryDto d = qaSearchHistoryService.findByHistoryContent("test setHistory");
-		assertEquals(t.getHistoryId(),d.getHistoryId());
-		assertEquals(new Integer(1),d.getRank());
-		//rank++
-		qaSearchHistoryService.setHistory("test setHistory");
-		d = qaSearchHistoryService.findByHistoryContent("test setHistory");
-		assertEquals(new Integer(2),d.getRank());
-		//delete finally
-		qaSearchHistoryService.deleteById(d.getHistoryId());
-	}
-	
-	@Test
-	public void setHistoryException()throws Exception {
-		try {
-			qaSearchHistoryService.setHistory(null);
-			fail("expected a QaSearchHistoryException to be throwed");
-		}catch(QaSearchHistoryException e) {
-			assertThat(e.getMessage(),is("传入title为空！"));
-		}
-	}
-	
-	@Test
-	public void deleteById()throws Exception {
-		QaSearchHistoryDto t = qaSearchHistoryService.setHistory("test setHistory");
-		qaSearchHistoryService.deleteById(t.getHistoryId());
-		QaSearchHistoryDto d = qaSearchHistoryService.findByHistoryContent("test setHistory");
-		assertNull(d);
-	}
-	
-	@Test
 	public void deleteByIdException()throws Exception {
 		try {
 			qaSearchHistoryService.deleteById(null);
@@ -141,24 +108,5 @@ public class QaSearchHistoryImplTest {
 		}
 	}
 	
-	@Test
-	public void searchRecord()throws Exception{
-		QaTreeDto t = new QaTreeDto("testSearchRecord","SRM","N",1);
-		t = qaTreeService.save(t);
-		try {
-			qaSearchHistoryService.searchRecord("testSearchRecord");
-			Thread.sleep(1000);
-			t = qaTreeService.findByTitle("testSearchRecord");
-			assertEquals(new Integer(1),t.getRank());
-		}catch(Exception e) {
-			e.printStackTrace();
-		}finally {
-			qaTreeService.deleteById(t.getTreeId());
-		}
-	}
-	
-	@Test
-	public void searchRecord2()throws Exception{
-		qaSearchHistoryService.searchRecord(null);
-	}
+
 }

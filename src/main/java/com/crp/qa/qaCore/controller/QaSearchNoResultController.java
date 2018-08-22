@@ -14,7 +14,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.alibaba.fastjson.JSONObject;
+import com.crp.qa.qaCore.domain.dto.QaSearchHistoryDto;
 import com.crp.qa.qaCore.domain.dto.QaSearchNoResultDto;
+import com.crp.qa.qaCore.service.inte.QaSearchHistoryService;
 import com.crp.qa.qaCore.service.inte.QaSearchNoResultService;
 import com.crp.qa.qaCore.util.transfer.QaPagedDto;
 import com.crp.qa.qaCore.util.transfer.QaPagedTransfer;
@@ -26,13 +28,16 @@ public class QaSearchNoResultController extends BaseController{
 	@Resource(name="qaSearchNoResultService")
 	QaSearchNoResultService qaSearchNoResultService;
 	
+	@Resource(name="qaSearchHistoryService")
+	QaSearchHistoryService qaSearchHistoryService;
+	
 	@GetMapping(path="/findPagedAll")
 	public QaPagedTransfer findPagedAll(
 			@RequestParam(value="page") Integer page,
 			@RequestParam(value="size") Integer size) {
 		QaPagedTransfer dto = new QaPagedTransfer("success","查询成功");
 		try {
-			QaPagedDto<QaSearchNoResultDto> l = qaSearchNoResultService.findPagedAll(page, size);
+			QaPagedDto<QaSearchHistoryDto> l = qaSearchNoResultService.findPagedAll(page, size);
 			dto.setContent(l.getList());
 			dto.setTotalElements(l.getTotalElements());
 			dto.setTotalPages(l.getTotalPages());
@@ -58,7 +63,7 @@ public class QaSearchNoResultController extends BaseController{
 			if(to!=null && !to.trim().equals("")) {
 				toDate = sdf.parse(to);
 			}
-			QaPagedDto<QaSearchNoResultDto> l = qaSearchNoResultService.findByCreationDateBetween(fromDate,toDate,page, size);
+			QaPagedDto<QaSearchHistoryDto> l = qaSearchNoResultService.findByCreationDateBetween(fromDate,toDate,page, size);
 			dto.setContent(l.getList());
 			dto.setTotalElements(l.getTotalElements());
 			dto.setTotalPages(l.getTotalPages());
@@ -67,17 +72,5 @@ public class QaSearchNoResultController extends BaseController{
 		}
 		return dto;
 	}
-	
-	@PostMapping(path="/save")
-	public QaPagedTransfer findPagedAll(@RequestParam(value="record") String record) {
-		QaPagedTransfer dto = new QaPagedTransfer("success","查询成功");
-		QaSearchNoResultDto d = JSONObject.parseObject(record, QaSearchNoResultDto.class);
-		try {
-			d = qaSearchNoResultService.save(d);
-			dto.setContent(d);
-		}catch (Exception e) {
-			returnError(e,dto);
-		}
-		return dto;
-	}
+
 }

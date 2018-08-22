@@ -1,19 +1,11 @@
 package com.crp.qa.qaCore.util.counter;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
-import javax.annotation.PostConstruct;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import com.crp.qa.qaCore.domain.dto.QaSearchCountDto;
-import com.crp.qa.qaCore.service.inte.QaSearchCountService;
-import com.crp.qa.qaCore.util.exception.QaSearchCountException;
 
 
 @Component
@@ -58,7 +50,7 @@ public class QaCountSaver implements Runnable{
 			}
 			
 			//查找今天的计数
-			Integer today_num = counter.getCount(new Date());
+			Integer today_num = counter.getCount();
 			System.out.println(new Date() + "---------num:" + today_num);
 			//保存到数据库
 			if(today_num!=null) {

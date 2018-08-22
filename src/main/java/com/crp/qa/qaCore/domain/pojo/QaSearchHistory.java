@@ -31,6 +31,8 @@ public class QaSearchHistory {
 	private String attribute8;
 	private String attribute9;
 	private String attribute10;
+	private String isNoResult;
+	private String isPageTitle;
 	
 	@Id
 	@Column(name="history_id")
@@ -169,4 +171,19 @@ public class QaSearchHistory {
 	public void setAttribute10(String attribute10) {
 		this.attribute10 = attribute10;
 	}
+	@Column(name="is_noresult",length=20)
+	public String getIsNoResult() {
+		return isNoResult;
+	}
+	public void setIsNoResult(String isNoResult) {
+		this.isNoResult = isNoResult;
+	}
+	@Column(name="is_pagetitle",length=20)
+	public String getIsPageTitle() {
+		return isPageTitle;
+	}
+	public void setIsPageTitle(String isPageTitle) {
+		this.isPageTitle = isPageTitle;
+	}
+	
 }
